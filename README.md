@@ -1,1 +1,2 @@
 # quiz-portal
+install
