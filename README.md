@@ -1,2 +1,2 @@
 # quiz-portal
-install
+hello
