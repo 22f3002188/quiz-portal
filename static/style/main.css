@@ -22,7 +22,15 @@
     padding: 10px;
     border-radius: 10px;
     font-size: 1;
+    text-align: justify;
 }
+.outer_box{
+    border: 1px solid orange;
+    margin: auto;
+    padding: 10px;
+    border-radius: 10px;
+}
+
 .centre{
     text-align: center;
     margin: auto;
