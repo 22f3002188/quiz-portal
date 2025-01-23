@@ -1,10 +1,8 @@
-from flask import Flask, request, render_template, redirect, flash
+
 from flask_sqlalchemy import SQLAlchemy
 
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-app.config['SECRET_KEY'] = 'your_secret_key_here'
+
 
 
 db = SQLAlchemy(app)
@@ -58,5 +56,4 @@ class Score(db.Model):
     total_scored = db.Column(db.Integer)
 
 
-    with app.app_context():
-        db.create_all()
+   
