@@ -1,44 +1,39 @@
 <!DOCTYPE html>
 <html>
     <head>
-
         <link rel="stylesheet" href="../static/style/main.css">
         <link rel="stylesheet" href="../static/style/bootstrap.min.css">
-        
         <title>Signup</title>
     </head>
     <body>
         <div class="my_container">
             <div class="centre"><h1>Welcome to quiz master</h1></div>
             <div class="my_panel">
-               <div class="centre"><h3 >Signup</h3></div>
+               <div class="centre"><h3>Signup</h3></div>
                 <div class="input_form">
-                    <div class="mb-3">
-                        <label for="user_name" class="form-label">User name(E-mail)</label>
-                        <input type="email" class="form-control" id="user_name" placeholder="Enter Your User Name">
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" placeholder="Enter Your Password">
-                    </div> 
-                    <div class="mb-3">
-                        <label for="full_name" class="form-label">Full name</label>
-                        <input type="text" class="form-control" id="full_name" placeholder="Enter your Full Name">
-                    </div> 
-                    <div class="mb-3">
-                        <label for="qualification" class="form-label">Qualification</label>
-                        <input type="text" class="form-control" id="qualification" placeholder="Enter Your Qualification">
-                    </div>
-                    <div class="mb-3">
-                        <label for="dob" class="form-label">DOB</label>
-                        <input type="date" class="form-control" id="dob">
-                    </div>
-                   
-                    <div class="mb-3">
-                        <button type="button" class="btn btn-primary">Register</button>
-                        Existing user?<a href="#">Login</a>
-                    </div>   
-                    
+                    <form method="POST" action="{{ url_for('signup') }}">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">User name(E-mail)</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter Your User Name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Enter Your Password">
+                        </div> 
+                        <div class="mb-3">
+                            <label for="full_name" class="form-label">Full name</label>
+                            <input type="text" class="form-control" id="full_name" name="full_name" placeholder="Enter your Full Name">
+                        </div> 
+                        <div class="mb-3">
+                            <label for="qualification" class="form-label">Qualification</label>
+                            <input type="text" class="form-control" id="qualification" name="qualification" placeholder="Enter Your Qualification">
+                        </div>
+                        <div class="mb-3">
+                            <label for="dob" class="form-label">DOB</label>
+                            <input type="date" class="form-control" id="dob" name="dob">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Signup</button>
+                    </form>
                 </div>
             </div>
         </div>
