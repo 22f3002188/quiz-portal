@@ -1,23 +1,113 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link rel="stylesheet" href="../static/style/main.css">
-        <link rel="stylesheet" href="../static/style/bootstrap.min.css">
-        
-        <title>Home Page</title>
-    </head>
-    <body>
-        <h3 class="centre">welcome to quiz portal</h3>
-        <div class="centre">
-            <h3>1. Eligibility to Participate
-               All registered users are eligible to participate in quizzes.</h3>
-            <h3>2.Quiz Format
-               Each quiz consists of multiple-choice, true/false, or short-answer questions.
-               The number of questions and time limit will vary depending on the quiz.</h3>
-            <h3>3. Timing and Deadlines
-               Each quiz has a set time limit; ensure you complete it within the given time.
-               Late submissions or exceeding the time limit will not be considered.</h3>     
+    <title>Quiz Master V1 - Home</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="my_container">
+        <div class="my_panel">
+            <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
+                <div class="collapse navbar-collapse" id="navbarText">
+                </div>
+              </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <h1>Welcome to Quiz Master V1</h1>
+            <p class="lead">Your ultimate platform for exam preparation and quiz practice.</p>
         </div>
-        <div class="centre"><a href="#" type="button" class="btn btn-primary">Login</a></div>
-    </body>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <h2 class="text-center mb-5">Features</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card feature-card">
+                        <div class="card-body">
+                            <h5 class="card-title">Multiple Subjects</h5>
+                            <p class="card-text">Choose from a wide range of subjects to practice quizzes.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card feature-card">
+                        <div class="card-body">
+                            <h5 class="card-title">Chapter-wise Quizzes</h5>
+                            <p class="card-text">Practice quizzes for each chapter to master the topics.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card feature-card">
+                        <div class="card-body">
+                            <h5 class="card-title">Track Your Progress</h5>
+                            <p class="card-text">View your quiz scores and track your improvement over time.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Subjects Section -->
+    <section id="subjects" class="subjects-section">
+        <div class="container">
+            <h2 class="text-center mb-5">Popular Subjects</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card subject-card">
+                        <div class="card-body">
+                            <h5 class="card-title">Mathematics</h5>
+                            <p class="card-text">Practice quizzes on algebra, calculus, and more.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card subject-card">
+                        <div class="card-body">
+                            <h5 class="card-title">Science</h5>
+                            <p class="card-text">Test your knowledge in physics, chemistry, and biology.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card subject-card">
+                        <div class="card-body">
+                            <h5 class="card-title">History</h5>
+                            <p class="card-text">Explore historical events and timelines through quizzes.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call-to-Action Section -->
+    <section id="cta" class="cta-section">
+        <div class="container">
+            <h2>Ready to Start?</h2>
+            <p class="lead">Join Quiz Master V1 today and take your exam preparation to the next level.</p>
+            
+            <div class="mb-3">
+                <!-- <button type="button" class="btn btn-primary">Login</button> -->
+                <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg">Get Started</a>
+            </div>   
+            
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Quiz Master V1. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>

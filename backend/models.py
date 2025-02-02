@@ -1,23 +1,42 @@
-
-from flask import app
 from flask_sqlalchemy import SQLAlchemy
-
-
-
-
 
 db = SQLAlchemy()
 
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), unique=True, nullable=False)
+    #username = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     full_name = db.Column(db.String(100))
     qualification = db.Column(db.String(100))
     dob = db.Column(db.Date)
-    role = db.Column(db.String(10), default='user')  # 'admin' or 'user'
+    role = db.Column(db.String(10), default='user') # 'admin' or 'user'
+
+    def __init__(self, email, password, role):
+        self.email = email
+        self.password = password
+        self.role = role
+
+
+def create_admin(app):
+    with app.app_context():
+        if not User.query.filter_by(email='admin@gmail.com').first():
+            admin = User(
+                #username='admin@gmail.com',  # Set the username field
+                email='admin@gmail.com',
+                password='123456',
+                full_name='ADMIN',
+                role='admin'
+            )
+            db.session.add(admin)
+            db.session.commit()
+            print("Admin user created!")
+        else:
+            print("Admin user already exists.")
+
+
+
 
 # class Subject(db.Model):
 #     __tablename__ = 'subjects'
@@ -69,4 +88,3 @@ class User(db.Model):
 #     total_scored = db.Column(db.Integer)
 
 
-   
