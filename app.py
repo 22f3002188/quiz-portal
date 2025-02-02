@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from backend.models import db, User, create_admin
 from datetime import datetime
 
@@ -12,39 +12,13 @@ db.init_app(app)
 def home():
     return render_template('home.html')
 
-# @app.route('/login', methods=['GET', 'POST'])
-# def login():
-#     if request.method == 'POST':
-#         username = request.form.get('username')
-#         password = request.form.get('password')
-#         user = User.query.filter_by(username=username).first()
-#         if user and user.password == password:
-#             if user.role == 'admin':
-#                 flash('Admin login successful!', 'success')
-#                 return redirect(url_for('admin_dashboard'))
-#             else:
-#                 flash('Login successful!', 'success')
-#                 return redirect(url_for('user_dashboard'))
-#         else:
-#             flash('Invalid username or password', 'danger')
-#             return redirect(url_for('login'))
-#     return render_template('login.html')
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
 
-        print(f"DEBUG: Username entered: {email}")  # Debugging
-        print(f"DEBUG: Password entered: {password}")  # Debugging
-
         user = User.query.filter_by(email=email).first()
-
-        if user:
-            print(f"DEBUG: User found - {user.email}, Role: {user.role}")
-        else:
-            print("DEBUG: No user found with this username.")
 
         if user and user.password == password:
             if user.role == 'admin':
@@ -93,6 +67,12 @@ def admin_dashboard():
 @app.route('/user_dashboard')
 def user_dashboard():
     return render_template('user.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash('You have been logged out.', 'success')
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
     with app.app_context():

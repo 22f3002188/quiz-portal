@@ -16,11 +16,11 @@
                <form method="POST" action="{{ url_for('login') }}">
                 <div class="mb-3">
                     <label for="email" class="form-label">User Name (E-mail)</label>
-                    <input type="email" class="form-control" id="email" name="email" placeholder="Enter Your User Name">
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Enter Your User Name" required>
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" name="password" placeholder="Enter Your Password">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Enter Your Password" required>
                 </div> 
                 <div class="mb-3">
                     <button type="submit" class="btn btn-primary">Login</button>
@@ -40,5 +40,6 @@
         {% endwith %}
         </div>
         </div>
+        
     </body>
 </html>
