@@ -5,13 +5,12 @@ db = SQLAlchemy()
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    #username = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     full_name = db.Column(db.String(100))
     qualification = db.Column(db.String(100))
     dob = db.Column(db.Date)
-    role = db.Column(db.String(10), default='user') # 'admin' or 'user'
+    role = db.Column(db.String(10), default='user') # 'admin' or 'user
 
     def __init__(self, email, password, role):
         self.email = email
@@ -23,7 +22,6 @@ def create_admin(app):
     with app.app_context():
         if not User.query.filter_by(email='admin@gmail.com').first():
             admin = User(
-                #username='admin@gmail.com',  # Set the username field
                 email='admin@gmail.com',
                 password='123456',
                 full_name='ADMIN',
@@ -35,14 +33,11 @@ def create_admin(app):
         else:
             print("Admin user already exists.")
 
-
-
-
-# class Subject(db.Model):
-#     __tablename__ = 'subjects'
-#     id = db.Column(db.Integer, primary_key=True)
-#     name = db.Column(db.String(100), nullable=False)
-#     description = db.Column(db.Text)
+class Subject(db.Model):
+    __tablename__ = 'subjects'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text)
 
 # class Chapter(db.Model):
 #     __tablename__ = 'chapters'

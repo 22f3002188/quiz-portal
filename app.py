@@ -74,6 +74,10 @@ def logout():
     flash('You have been logged out.', 'success')
     return redirect(url_for('login'))
 
+@app.route('/quiz')
+def quiz():
+    return render_template('quiz.html')
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Ensure the database tables are created
