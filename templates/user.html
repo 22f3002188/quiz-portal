@@ -9,30 +9,26 @@
         <div class="my_container">
             <div class="centre"><h1>Welcome to User Dashboard</h1></div>
             <div class="my_panel">
-                <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
-                    <div class="collapse navbar-collapse" id="navbarText">
-                      <ul class="navbar-nav mr-auto">
-                        <li class="nav-item active">
-                          <a class="nav-link" href="#">Home</a>
-                        </li>
-                        <li class="nav-item">
-                          <a class="nav-link" href="#">Scores</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Summary</a>
-                        </li>
-                        <li class="nav-item">
-                          <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-                        </li> 
-                      </ul>
-                      <form class="form-inline my-2 my-lg-0 mr-3">
-                        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                      </form>
-                      <span class="navbar-text">
-                        Welcome User !!
-                      </span>
+                <nav class="navbar navbar-expand-lg navbar-light bg-primary">
+                    <div class="container-fluid">
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse" id="navbarNav">
+                            <ul class="navbar-nav me-auto">
+                                <li class="nav-item"><a class="nav-link text-white" href="#">Home</a></li>
+                                <li class="nav-item"><a class="nav-link text-white" href="#">Quiz</a></li>
+                                <li class="nav-item"><a class="nav-link text-white" href="#">Summary</a></li>
+                                <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('logout') }}">Logout</a></li>
+                            </ul>
+                            <form class="d-flex">
+                                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                                <span class="navbar-text text-white ms-2">Welcome user</span>
+                            </form>
+                        </div>
                     </div>
                 </nav>
+            
                 <div class="outer_box">
                     <div class="container">
                         <h3>Upcoming Quizzes</h3>

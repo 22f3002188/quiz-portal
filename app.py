@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
-from backend.models import db, User, create_admin, Subject
+from backend.models import db, User, create_admin, Subject, Chapter, Quiz
 from datetime import datetime
 
 app = Flask(__name__)
@@ -61,10 +61,6 @@ def signup():
         return redirect(url_for('login'))
     return render_template('signup.html')
 
-@app.route('/admin_dashboard')
-def admin_dashboard():
-    return render_template('admin.html')
-
 @app.route('/user_dashboard')
 def user_dashboard():
     return render_template('user.html')
@@ -79,8 +75,49 @@ def logout():
 def quiz():
     return render_template('quiz.html')
 
+@app.route('/chapter', methods=['GET', 'POST'])
+def add_chapter():
+    if request.method == 'POST':
+        chapter_name = request.form['name']
+        chapter_description = request.form['description']
+        new_chapter = Chapter(name=chapter_name, description=chapter_description, subject_id=1)  # Replace subject_id with the appropriate value
+        db.session.add(new_chapter)
+        db.session.commit()
+        return redirect(url_for('admin_dashboard'))
+    return render_template('chapter.html')
+
+@app.route('/admin_dashboard')
+def admin_dashboard():
+    all_subjects = Subject.query.all()  # Fetch only subjects, no chapters
+    return render_template('admin.html', subjects=all_subjects)
+
+@app.route('/subject', methods=['GET', 'POST'])
+def add_subject():
+    if request.method == 'POST':
+        subject_name = request.form['name']
+        subject_description = request.form['description']
+        new_subject = Subject(name=subject_name, description=subject_description)
+        db.session.add(new_subject)
+        db.session.commit()
+        return redirect(url_for('admin_dashboard'))
+    return render_template('subject.html')
+
+@app.route('/subjects', methods=['GET'])
+def subjects():
+    all_subjects = Subject.query.all()  # Only fetching subjects
+    return render_template('subjects.html', subjects=all_subjects)
+
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Ensure the database tables are created
         create_admin(app)  # Create the admin user
+
+        # Retrieve subjects once and store them in a global variable
+        # all_subjects = Subject.query.all()
+
+        # Print retrieved subjects for debugging
+        # for subject in all_subjects:
+        #     print(subject.id, subject.name, subject.description)  
     app.run(debug=True)

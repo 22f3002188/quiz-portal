@@ -1,34 +1,104 @@
 <!DOCTYPE html>
-<html>
-    <head>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Subject</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f9f9f9;
+        }
 
-        <link rel="stylesheet" href="../static/style/main.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+        .container {
+            width: 450px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.1);
+            border: 2px solid black;
+        }
 
-        <title>New Subject</title>
-    </head>
-    <body>
-        <div class="my_container">
-            <div class="my_panel">
-               <div class="centre"><h3 >New Subject</h3></div>
-               <div class="input_form">
-                <div class="mb-3">
-                    <label for="name" class="form-label">Subject Name:</label>
-                    <input type="name" class="form-control" id="name" name="name" placeholder="Enter Your Subject Name" required>
-                </div>
-                <div class="mb-3">
-                    <label for="description" class="form-label">Description:</label>
-                    <input type="description" class="form-control" id="description" name="description" placeholder="Enter Description" required>
-                </div> 
-                <div class="mb-3">
-                    <button type="submit" class="btn btn-primary">Save</button>
-                    <button type="submit" class="btn btn-primary">Cancel</button>
-                    
-                </div>   
-            </form>
-        </div>
-        </div>
-        </div>
-        
-    </body>
+        h2 {
+            text-align: center;
+            color: orange;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            font-weight: bold;
+            color: #78b4ed;
+            margin-right: 10px;
+            white-space: nowrap;
+            width: 100px; /* Set a fixed width for alignment */
+        }
+
+        .input-group input,
+        .input-group textarea {
+            flex: 1;
+            padding: 8px;
+            border: 2px solid #78b4ed;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .input-group textarea {
+            height: 80px;
+            resize: none;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        button {
+            background: #78b4ed;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #78b4ed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>New Subject</h2>
+        <form action="{{ url_for('add_subject') }}" method="POST">
+            <div class="input-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+
+            <div class="input-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" required></textarea>
+            </div>
+
+            <div class="buttons">
+                <button type="submit">Save</button>
+                <button type="button" onclick.href="{{ url_for('admin_dashboard') }}">Cancel</button>
+            </div>
+        </form>
+    </div>
+</body>
 </html>
