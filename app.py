@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
-from backend.models import db, User, create_admin
+from backend.models import db, User, create_admin, Subject
 from datetime import datetime
 
 app = Flask(__name__)
@@ -9,8 +9,9 @@ app.config['SECRET_KEY'] = 'your_secret_key'
 db.init_app(app)
 
 @app.route('/')
+@app.route('/home')
 def home():
-    return render_template('home.html')
+    return render_template('login.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
