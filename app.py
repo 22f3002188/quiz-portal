@@ -86,7 +86,7 @@ def add_chapter():
         return redirect(url_for('admin_dashboard'))
     return render_template('chapter.html')
 
-@app.route('/admin_dashboard')
+@app.route('/admin_dashboard', methods=['GET'])
 def admin_dashboard():
     all_subjects = Subject.query.all()  # Fetch only subjects, no chapters
     return render_template('admin.html', subjects=all_subjects)
@@ -111,13 +111,5 @@ def subjects():
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()  # Ensure the database tables are created
-        create_admin(app)  # Create the admin user
-
-        # Retrieve subjects once and store them in a global variable
-        # all_subjects = Subject.query.all()
-
-        # Print retrieved subjects for debugging
-        # for subject in all_subjects:
-        #     print(subject.id, subject.name, subject.description)  
+        db.create_all()  # Ensure the database tables are created  # Create the admin user
     app.run(debug=True)

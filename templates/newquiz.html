@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/style/dashboard2.css">
+    <title>New Quiz</title>
+</head>
+<body>
+    <div class="container">
+        <h2>New Quiz</h2>
+        <form action="{{ url_for('add_quiz') }}" method="POST">
+            <div class="input-group">
+                <label for="chapter_id">Chapter ID:</label>
+                <select id="chapter_id" name="chapter_id" required>
+                    <option value="" selected disabled>Choose...</option>
+                    <option value="1">Chapter 1</option>
+                    <option value="2">Chapter 2</option>
+                    <option value="3">Chapter 3</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="quiz_date">Date:</label>
+                <input type="date" id="quiz_date" name="quiz_date" required>
+            </div>
+
+            <div class="input-group">
+                <label for="duration">Duration:</label>
+                <input type="text" id="duration" name="duration" placeholder="hh:mm" required>
+            </div>
+
+            <div class="buttons">
+                <button type="submit">Save</button>
+                <button type="button" onclick="document.getElementById('cancel-form').submit();">Cancel</button>
+            </div>
+        </form>
+        <form id="cancel-form" action="{{ url_for('admin_dashboard') }}" method="GET" style="display: none;"></form>
+    </div>
+</body>
+</html>

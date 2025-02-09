@@ -4,88 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Chapters</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f9f9f9;
-        }
-
-        .container {
-            width: 450px;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.1);
-            border: 2px solid black;
-        }
-
-        h2 {
-            text-align: center;
-            color: orange;
-            margin-bottom: 20px;
-        }
-
-        .input-group {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .input-group label {
-            font-weight: bold;
-            color: #78b4ed;
-            margin-right: 10px;
-            white-space: nowrap;
-            width: 100px; /* Set a fixed width for alignment */
-        }
-
-        .input-group input,
-        .input-group textarea {
-            flex: 1;
-            padding: 8px;
-            border: 2px solid #78b4ed;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-
-        .input-group textarea {
-            height: 80px;
-            resize: none;
-        }
-
-        .note {
-            color: red;
-            font-size: 12px;
-            text-align: center;
-            margin: 10px 0;
-        }
-
-        .buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 10px;
-        }
-
-        button {
-            background: #78b4ed;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            font-size: 14px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            background: #78b4ed;
-        }
-    </style>
+    <link rel="stylesheet" href="../static/style/dashboard2.css">
 </head>
 <body>
     <div class="container">
@@ -103,9 +22,10 @@
 
             <div class="buttons">
                 <button type="submit">Save</button>
-                <button type="button" onclick.href="{{ url_for('admin_dashboard') }}">Cancel</button>
+                <button type="button" onclick="document.getElementById('cancel-form').submit();">Cancel</button>
             </div>
         </form>
+        <form id="cancel-form" action="{{ url_for('admin_dashboard') }}" method="GET" style="display: none;"></form>
     </div>
 </body>
 </html>
