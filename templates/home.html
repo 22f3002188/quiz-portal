@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizMaster - Test Your Knowledge</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            color: #666;
+        }
+        .login-btn {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .login-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to QuizMaster</h1>
+        <p>Challenge yourself with our exciting quizzes and test your knowledge across various subjects!</p>
+        <p>Ready to begin? Log in to start your quiz adventure.</p>
+        <a href="{{ url_for('login') }}" class="login-btn">Log In</a>
+    </div>
+</body>
+</html>

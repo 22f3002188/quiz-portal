@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Chapter - {{ chapter.name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/dashboard2.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Edit Chapter - {{ chapter.name }}</h2>
+        <form action="{{ url_for('edit_chapter', chapter_id=chapter.id) }}" method="POST">
+            <div class="input-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" value="{{ chapter.name }}" required>
+            </div>
+
+            <div class="input-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" required>{{ chapter.description }}</textarea>
+            </div>
+
+            <div class="buttons">
+                <button type="submit">Update</button>
+                <button type="button" onclick="document.getElementById('cancel-form').submit();">Cancel</button>
+            </div>
+        </form>
+        <form id="cancel-form" action="{{ url_for('view_chapters', subject_id=chapter.subject_id) }}" method="GET" style="display: none;"></form>
+    </div>
+</body>
+</html>
