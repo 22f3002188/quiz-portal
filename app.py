@@ -84,7 +84,9 @@ def signup():
 @app.route('/admin')
 def admin_dashboard():
     subjects = Subject.query.all()
-    return render_template('admin.html', subjects=subjects)
+    chapters = Chapter.query.all()  # Fetch all chapters
+    return render_template('admin.html', subjects=subjects, chapters=chapters)
+  
 
 
 # CRUD for Subjects
@@ -177,69 +179,57 @@ def delete_chapter(chapter_id):
     flash('Chapter deleted successfully!', 'success')
     return redirect(url_for('view_chapters', subject_id=chapter.subject_id))
 
+@app.route('/chapter/<int:chapter_id>/quiz/add', methods=['GET', 'POST'])
+def add_quiz(chapter_id):
+    chapter = Chapter.query.get_or_404(chapter_id)
 
+    if request.method == 'POST':
+        date_of_quiz = request.form.get('date_of_quiz')
+        time_duration = request.form.get('time_duration')
+        question_statements = request.form.getlist('question_statement[]')
+        option1_list = request.form.getlist('option1[]')
+        option2_list = request.form.getlist('option2[]')
+        option3_list = request.form.getlist('option3[]')
+        option4_list = request.form.getlist('option4[]')
+        correct_answers = request.form.getlist('correct_answer[]')
 
-# @app.route('/chapter/edit/<int:id>', methods=['GET', 'POST'])
-# def edit_chapter(id):
-#     chapter = Chapter.query.get(id)
-#     if request.method == 'POST':
-#         chapter.name = request.form['name']
-#         chapter.description = request.form['description']
-#         db.session.commit()
-#         return redirect(url_for('manage_chapters', subject_id=chapter.subject_id))
-#     return render_template('edit_chapter.html', chapter=chapter)
+        if not date_of_quiz or not time_duration or not question_statements:
+            flash('Please fill all fields.', 'danger')
+            return redirect(url_for('add_quiz', chapter_id=chapter_id))
 
-# @app.route('/chapter/delete/<int:id>', methods=['POST'])
-# def delete_chapter(id):
-#     chapter = Chapter.query.get(id)
-#     if not chapter:
-#         flash("Chapter not found!", "error")  # Optional: Show an error message
-#         return redirect(url_for('admin_dashboard'))  # Redirect to a safe page
-    
-#     subject_id = chapter.subject_id  # Store before deletion
-#     db.session.delete(chapter)
-#     db.session.commit()
+        try:
+            date_parsed = datetime.strptime(date_of_quiz, '%Y-%m-%d %H:%M')
+            time_parsed = datetime.strptime(time_duration, '%H:%M').time()
+        except ValueError:
+            flash('Invalid date or time format.', 'danger')
+            return redirect(url_for('add_quiz', chapter_id=chapter_id))
 
-#     return redirect(url_for('view_chapter', id=subject_id))
+        new_quiz = Quiz(
+            chapter_id=chapter_id,
+            date_of_quiz=date_parsed,
+            time_duration=time_parsed
+        )
+        db.session.add(new_quiz)
+        db.session.commit()
 
-# @app.route('/chapter/<int:chapter_id>/quizzes')
-# def view_quizzes(chapter_id):
-#     chapter = Chapter.query.get_or_404(chapter_id)
-#     quizzes = Quiz.query.filter_by(chapter_id=chapter_id).all()
-#     return render_template('view_quizzes.html', chapter=chapter, quizzes=quizzes)
+        for i in range(len(question_statements)):
+            new_question = Question(
+                quiz_id=new_quiz.id,
+                statement=question_statements[i],
+                option1=option1_list[i],
+                option2=option2_list[i],
+                option3=option3_list[i] if option3_list[i] else None,
+                option4=option4_list[i] if option4_list[i] else None,
+                correct_answer=correct_answers[i]
+            )
+            db.session.add(new_question)
 
+        db.session.commit()
+        flash('Quiz added successfully!', 'success')
+        return redirect(url_for('view_quizzes', chapter_id=chapter_id))
 
+    return render_template('add_quiz.html', chapter=chapter)
 
-# @app.route('/chapter/<int:chapter_id>/quiz/add', methods=['GET', 'POST'])
-# def add_quiz(chapter_id):
-#     chapter = Chapter.query.get_or_404(chapter_id)
-
-#     if request.method == 'POST':
-#         date_of_quiz = request.form['date_of_quiz']
-#         time_duration = request.form['time_duration']
-
-#         if not date_of_quiz or not time_duration:
-#             flash('Please fill all fields.', 'danger')
-#             return redirect(url_for('add_quiz', chapter_id=chapter_id))
-
-#         try:
-#             date_parsed = datetime.strptime(date_of_quiz, '%Y-%m-%d %H:%M')
-#             time_parsed = datetime.strptime(time_duration, '%H:%M').time()
-#         except ValueError:
-#             flash('Invalid date or time format.', 'danger')
-#             return redirect(url_for('add_quiz', chapter_id=chapter_id))
-
-#         new_quiz = Quiz(
-#             chapter_id=chapter_id,
-#             date_of_quiz=date_parsed,
-#             time_duration=time_parsed
-#         )
-#         db.session.add(new_quiz)
-#         db.session.commit()
-#         flash('Quiz added successfully!', 'success')
-#         return redirect(url_for('view_quizzes', chapter_id=chapter_id))
-
-#     return render_template('add_quiz.html', chapter=chapter)
 
 
 # @app.route('/quiz/edit/<int:id>', methods=['GET', 'POST'])
@@ -269,111 +259,28 @@ def delete_chapter(chapter_id):
 #     return render_template('edit_quiz.html', quiz=quiz)
 
 
-# @app.route('/quiz/delete/<int:id>', methods=['POST'])
-# def delete_quiz(id):
-#     """Handles deleting a quiz."""
-#     quiz = Quiz.query.get_or_404(id)
-#     chapter_id = quiz.chapter_id
+@app.route('/quiz/delete/<int:id>', methods=['POST'])
+def delete_quiz(id):
+    """Handles deleting a quiz."""
+    quiz = Quiz.query.get_or_404(id)
+    chapter_id = quiz.chapter_id
 
-#     db.session.delete(quiz)
-#     db.session.commit()
-#     flash('Quiz deleted successfully!', 'success')
+    db.session.delete(quiz)
+    db.session.commit()
+    flash('Quiz deleted successfully!', 'success')
 
-#     return redirect(url_for('view_quizzes', chapter_id=chapter_id))
+    return redirect(url_for('view_quizzes', chapter_id=chapter_id))
 
 
-# @app.route('/chapters/<int:subject_id>', methods=['GET', 'POST'])
-# def manage_chapters(subject_id):
-#     if request.method == 'POST':
-#         name = request.form['name']
-#         description = request.form['description']
-#         new_chapter = Chapter(name=name, description=description, subject_id=subject_id)
-#         db.session.add(new_chapter)
-#         db.session.commit()
-#     chapters = Chapter.query.filter_by(subject_id=subject_id).all()
-#     subject = Subject.query.get(subject_id)
-#     return render_template('chapters.html', chapters=chapters, subject=subject)
 
-# @app.route('/chapter/edit/<int:id>', methods=['GET', 'POST'])
-# def edit_chapter(id):
-#     chapter = Chapter.query.get(id)
-#     if request.method == 'POST':
-#         chapter.name = request.form['name']
-#         db.session.commit()
-#         return redirect(url_for('admin_dashboard'))
-#     return render_template('edit_chapter.html', chapter=chapter)
-
-# @app.route('/chapter/delete/<int:id>', methods=['POST'])
-# def delete_chapter(id):
-#     chapter = Chapter.query.get(id)
-#     if chapter:
-#         db.session.delete(chapter)
-#         db.session.commit()
-#     return redirect(url_for('admin_dashboard'))
-
-# # CRUD for Quizzes
-# @app.route('/quizzes/<int:chapter_id>', methods=['GET', 'POST'])
-# def manage_quizzes(chapter_id):
-#     if request.method == 'POST':
-#         title = request.form['title']
-#         new_quiz = Quiz(title=title, chapter_id=chapter_id)
-#         db.session.add(new_quiz)
-#         db.session.commit()
-#     quizzes = Quiz.query.filter_by(chapter_id=chapter_id).all()
-#     return render_template('quizzes.html', quizzes=quizzes, chapter_id=chapter_id)
-
-# @app.route('/quiz/edit/<int:id>', methods=['GET', 'POST'])
-# def edit_quiz(id):
-#     quiz = Quiz.query.get(id)
-#     if request.method == 'POST':
-#         quiz.title = request.form['title']
-#         db.session.commit()
-#         return redirect(url_for('admin_dashboard'))
-#     return render_template('edit_quiz.html', quiz=quiz)
-
-# @app.route('/quiz/delete/<int:id>', methods=['POST'])
-# def delete_quiz(id):
-#     quiz = Quiz.query.get(id)
-#     if quiz:
-#         db.session.delete(quiz)
-#         db.session.commit()
-#     return redirect(url_for('admin_dashboard'))
-
-# # CRUD for Questions
-# @app.route('/questions/<int:quiz_id>', methods=['GET', 'POST'])
-# def manage_questions(quiz_id):
-#     if request.method == 'POST':
-#         text = request.form['text']
-#         new_question = Question(text=text, quiz_id=quiz_id)
-#         db.session.add(new_question)
-#         db.session.commit()
-#     questions = Question.query.filter_by(quiz_id=quiz_id).all()
-#     return render_template('questions.html', questions=questions, quiz_id=quiz_id)
-
-# @app.route('/question/edit/<int:id>', methods=['GET', 'POST'])
-# def edit_question(id):
-#     question = Question.query.get(id)
-#     if request.method == 'POST':
-#         question.text = request.form['text']
-#         db.session.commit()
-#         return redirect(url_for('admin_dashboard'))
-#     return render_template('edit_question.html', question=question)
-
-# @app.route('/question/delete/<int:id>', methods=['POST'])
-# def delete_question(id):
-#     question = Question.query.get(id)
-#     if question:
-#         db.session.delete(question)
-#         db.session.commit()
-#     return redirect(url_for('admin_dashboard'))
 
 
 # <-----user_dashboard----->
 
 
-# @app.route('/user_dashboard')
-# def user_dashboard():
-#     return render_template('user.html')
+@app.route('/user_dashboard')
+def user_dashboard():
+    return render_template('user.html')
 
 @app.route('/logout')
 def logout():

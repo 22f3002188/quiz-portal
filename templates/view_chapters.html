@@ -4,54 +4,75 @@
     <title>Chapters - {{ subject.name }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-light">
 
-    <div class="container mt-4">
-        <h2 class="text-center">Chapters of {{ subject.name }}</h2>
-
-        <div class="table-responsive">
-            <table class="table table-bordered text-center">
-                <thead class="table-dark">
-                    <tr>
-                        <th>ID</th>
-                        <th>Chapter Name</th>
-                        <th>Description</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for chapter in chapters %}
-                    <tr>
-                        <td>{{ chapter.id }}</td>
-                        <td>{{ chapter.name }}</td>
-                        <td>{{ chapter.description }}</td>
-                        <td>
-                            <div class="d-flex justify-content-center gap-2">
-                                <form action="{{ url_for('view_quizzes', chapter_id=chapter.id) }}" method="get" class="d-inline-block">
-                                    <button type="submit" class="btn btn-info">View Quiz</button>
-                                </form>
-                                <form action="{{ url_for('edit_chapter', chapter_id=chapter.id) }}" class="d-inline-block">
-                                    <button type="submit" class="btn btn-warning">Edit</button>
-                                </form>
-                                <form action="{{ url_for('delete_chapter', chapter_id=chapter.id) }}" method="post" class="d-inline-block">
-                                    <button type="submit" class="btn btn-danger">Delete</button>
-                                </form>
-                                
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+        <div class="container">
+            <a class="navbar-brand" href="#">Quiz Portal</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
+                </ul>
+                <span class="navbar-text text-white">Welcome Admin</span>
+            </div>
         </div>
+    </nav>
 
-        <div class="text-center my-3">
-            <form action="{{ url_for('add_chapter', subject_id=subject.id) }}" method="get">
-                <button type="submit" class="btn btn-success">Add Chapter</button>
-            </form>
+    <div class="container mt-5">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-primary text-white text-center fs-4 fw-bold">
+                Chapters of {{ subject.name }}
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered text-center">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Chapter Name</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="align-middle">
+                            {% for chapter in chapters %}
+                            <tr class="table-light">
+                                <td class="fw-bold">{{ chapter.id }}</td>
+                                <td>{{ chapter.name }}</td>
+                                <td>{{ chapter.description }}</td>
+                                <td>
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <form action="{{ url_for('view_quizzes', chapter_id=chapter.id) }}" method="get">
+                                            <button type="submit" class="btn btn-info text-white">View Quiz</button>
+                                        </form>
+                                        <form action="{{ url_for('edit_chapter', chapter_id=chapter.id) }}">
+                                            <button type="submit" class="btn btn-warning">Edit</button>
+                                        </form>
+                                        <form action="{{ url_for('delete_chapter', chapter_id=chapter.id) }}" method="post">
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="text-center my-3">
+                    <form action="{{ url_for('add_chapter', subject_id=subject.id) }}" method="get">
+                        <button type="submit" class="btn btn-success btn-lg shadow">Add Chapter</button>
+                    </form>
+                </div>
+            </div>
         </div>
-
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
