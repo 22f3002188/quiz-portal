@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from backend.models import create_admin, db, User, Subject, Chapter, Quiz, Question
-from datetime import datetime
+from datetime import datetime, time
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quiz_portal.db' #having db file
@@ -43,8 +43,9 @@ def login():
             return redirect(url_for('login'))
     
     return render_template('login.html')
- #Displaying a webpage (e.g., showing a form, displaying data)
- #render_template: Used to display a web page (e.g., showing a form, displaying data).
+#  Displaying a webpage (e.g., showing a form, displaying data)
+#  render_template: Used to display a web page (e.g., showing a form, displaying data).
+
  
                         #  --------signup--------
 @app.route('/signup', methods=['GET', 'POST'])
@@ -84,7 +85,7 @@ def signup():
 @app.route('/admin')
 def admin_dashboard():
     subjects = Subject.query.all()
-    chapters = Chapter.query.all()  # Fetch all chapters
+    chapters = Chapter.query.all()# Fetch all chapters
     return render_template('admin.html', subjects=subjects, chapters=chapters)
   
 
@@ -182,98 +183,158 @@ def delete_chapter(chapter_id):
 @app.route('/chapter/<int:chapter_id>/quiz/add', methods=['GET', 'POST'])
 def add_quiz(chapter_id):
     chapter = Chapter.query.get_or_404(chapter_id)
-
+    
     if request.method == 'POST':
-        date_of_quiz = request.form.get('date_of_quiz')
-        time_duration = request.form.get('time_duration')
-        question_statements = request.form.getlist('question_statement[]')
-        option1_list = request.form.getlist('option1[]')
-        option2_list = request.form.getlist('option2[]')
-        option3_list = request.form.getlist('option3[]')
-        option4_list = request.form.getlist('option4[]')
-        correct_answers = request.form.getlist('correct_answer[]')
+            date_str = request.form.get('date_of_quiz')
+            time_str = request.form.get('time_duration')
 
-        if not date_of_quiz or not time_duration or not question_statements:
-            flash('Please fill all fields.', 'danger')
-            return redirect(url_for('add_quiz', chapter_id=chapter_id))
+            date_of_quiz = datetime.strptime(date_str, "%Y-%m-%dT%H:%M")
+            time_duration = datetime.strptime(time_str, "%H:%M").time()  # Convert to `time` object
 
-        try:
-            date_parsed = datetime.strptime(date_of_quiz, '%Y-%m-%d %H:%M')
-            time_parsed = datetime.strptime(time_duration, '%H:%M').time()
-        except ValueError:
-            flash('Invalid date or time format.', 'danger')
-            return redirect(url_for('add_quiz', chapter_id=chapter_id))
-
-        new_quiz = Quiz(
-            chapter_id=chapter_id,
-            date_of_quiz=date_parsed,
-            time_duration=time_parsed
-        )
-        db.session.add(new_quiz)
-        db.session.commit()
-
-        for i in range(len(question_statements)):
-            new_question = Question(
-                quiz_id=new_quiz.id,
-                statement=question_statements[i],
-                option1=option1_list[i],
-                option2=option2_list[i],
-                option3=option3_list[i] if option3_list[i] else None,
-                option4=option4_list[i] if option4_list[i] else None,
-                correct_answer=correct_answers[i]
-            )
-            db.session.add(new_question)
-
-        db.session.commit()
-        flash('Quiz added successfully!', 'success')
-        return redirect(url_for('view_quizzes', chapter_id=chapter_id))
-
+            new_quiz = Quiz(chapter_id=chapter_id, date_of_quiz=date_of_quiz, time_duration=time_duration)
+            db.session.add(new_quiz)
+            db.session.commit()
+            flash('Quiz added successfully!', 'success')
+            return redirect(url_for('view_quizzes', chapter_id=chapter_id))
     return render_template('add_quiz.html', chapter=chapter)
 
+@app.route('/quiz/<int:quiz_id>/edit', methods=['GET', 'POST'])
+def edit_quiz(quiz_id):
+    quiz = Quiz.query.get_or_404(quiz_id)
 
+    if request.method == 'POST':
+        date_str = request.form.get('date_of_quiz')
+        time_str = request.form.get('time_duration')
 
-# @app.route('/quiz/edit/<int:id>', methods=['GET', 'POST'])
-# def edit_quiz(id):
-#     """Handles editing a quiz's date and duration."""
-#     quiz = Quiz.query.get_or_404(id)
+        quiz.date_of_quiz = datetime.strptime(date_str, "%Y-%m-%dT%H:%M")
+        quiz.time_duration = datetime.strptime(time_str, "%H:%M:%S").time()  # Convert to time object
+    
+        db.session.commit()
+        return redirect(url_for('view_quizzes', chapter_id=quiz.chapter_id))
 
-#     if request.method == 'POST':
-#         date_of_quiz = request.form['date_of_quiz']
-#         time_duration = request.form['time_duration']
+    return render_template('edit_quiz.html', quiz=quiz)
 
-#         if not date_of_quiz or not time_duration:
-#             flash('Please fill all fields.', 'danger')
-#             return redirect(url_for('edit_quiz', id=id))
-
-#         try:
-#             quiz.date_of_quiz = datetime.strptime(date_of_quiz, '%Y-%m-%d %H:%M')
-#             quiz.time_duration = datetime.strptime(time_duration, '%H:%M').time()
-#         except ValueError:
-#             flash('Invalid date or time format.', 'danger')
-#             return redirect(url_for('edit_quiz', id=id))
-
-#         db.session.commit()
-#         flash('Quiz updated successfully!', 'success')
-#         return redirect(url_for('view_quizzes', chapter_id=quiz.chapter_id))
-
-#     return render_template('edit_quiz.html', quiz=quiz)
-
-
-@app.route('/quiz/delete/<int:id>', methods=['POST'])
-def delete_quiz(id):
-    """Handles deleting a quiz."""
-    quiz = Quiz.query.get_or_404(id)
-    chapter_id = quiz.chapter_id
+@app.route('/quiz/<int:quiz_id>/delete', methods=['POST'])
+def delete_quiz(quiz_id):
+    quiz = Quiz.query.get_or_404(quiz_id)
 
     db.session.delete(quiz)
     db.session.commit()
     flash('Quiz deleted successfully!', 'success')
+    return redirect(url_for('view_quizzes', chapter_id=quiz.chapter_id))
 
-    return redirect(url_for('view_quizzes', chapter_id=chapter_id))
+@app.route('/quiz/<int:quiz_id>/questions')
+def view_questions(quiz_id):
+    quiz = Quiz.query.get_or_404(quiz_id)  # Fetch the quiz object
+    questions = Question.query.filter_by(quiz_id=quiz_id).all()  # Fetch questions related to this quiz
+    return render_template('view_questions.html', quiz=quiz, questions=questions)  # Pass 'quiz' to the template
+
+
+
+@app.route('/quiz/<int:quiz_id>/question/add', methods=['GET', 'POST'])
+def add_question(quiz_id):
+    quiz = Quiz.query.get_or_404(quiz_id)  # Fetch quiz details to pass into the template
+
+    if request.method == 'POST':
+        question_statement = request.form['question_statement']
+        option1 = request.form['option1']
+        option2 = request.form['option2']
+        option3 = request.form['option3']
+        option4 = request.form['option4']
+        correct_answer = request.form['correct_answer']
+
+        # Validate all options are provided
+        if not (option1 and option2 and option3 and option4):
+            flash("All four options are required.", "danger")
+            return redirect(url_for('add_question', quiz_id=quiz_id))
+
+        # Validate correct answer is one of the provided options
+        if correct_answer not in ["option1", "option2", "option3", "option4"]:
+            flash("Correct answer must be one of the provided options.", "danger")
+            return redirect(url_for('add_question', quiz_id=quiz_id))
+
+        # Create new question entry
+        new_question = Question(
+            quiz_id=quiz_id,
+            question_statement=question_statement,
+            option1=option1,
+            option2=option2,
+            option3=option3,
+            option4=option4,
+            correct_answer=correct_answer
+        )
+        db.session.add(new_question)
+        db.session.commit()
+        flash("Question added successfully!", "success")
+        return redirect(url_for('view_questions', quiz_id=quiz_id))
+
+    return render_template('add_question.html', quiz=quiz)
+
+
+@app.route('/quiz/<int:quiz_id>/question/<int:question_id>/edit', methods=['GET', 'POST'])
+def edit_question(quiz_id, question_id):
+    quiz = Quiz.query.get_or_404(quiz_id)  # Fetch quiz details
+    question = Question.query.get_or_404(question_id)  # Fetch question details
+
+    if request.method == 'POST':
+        question_statement = request.form['question_statement']
+        option1 = request.form['option1']
+        option2 = request.form['option2']
+        option3 = request.form['option3']
+        option4 = request.form['option4']
+        correct_answer = request.form['correct_answer']
+
+        # Validate all options are provided
+        if not (option1 and option2 and option3 and option4):
+            flash("All four options are required.", "danger")
+            return redirect(url_for('edit_question', quiz_id=quiz_id, question_id=question_id))
+
+        # Validate correct answer is one of the provided options
+        if correct_answer not in ["option1", "option2", "option3", "option4"]:
+            flash("Correct answer must be one of the provided options.", "danger")
+            return redirect(url_for('edit_question', quiz_id=quiz_id, question_id=question_id))
+
+        # Update question details
+        question.question_statement = question_statement
+        question.option1 = option1
+        question.option2 = option2
+        question.option3 = option3
+        question.option4 = option4
+        question.correct_answer = correct_answer
+
+        db.session.commit()
+        flash("Question updated successfully!", "success")
+        return redirect(url_for('view_questions', quiz_id=quiz_id))
+
+    return render_template('edit_question.html', quiz=quiz, question=question)
 
 
 
 
+# Route to Delete Question
+@app.route('/question/<int:question_id>/delete', methods=['POST'])
+def delete_question(question_id):
+    question = Question.query.get_or_404(question_id)
+    db.session.delete(question)
+    db.session.commit()
+    flash("Question deleted successfully!", "success")
+    return redirect(url_for('view_questions', quiz_id=question.quiz_id))
+
+
+
+
+@app.route('/users')
+def users():
+    users = User.query.filter(User.email != 'admin@gmail.com').all()  # Exclude admin
+    return render_template('users_list.html', users=users)
+
+@app.route('/user/delete/<int:user_id>', methods=['POST'])
+def delete_user(user_id):
+    user = User.query.get(user_id)  # Fetch user by ID
+    db.session.delete(user)  # Delete the user from the database
+    db.session.commit()  # Commit the deletion
+    
+    return redirect(url_for('users')) 
 
 # <-----user_dashboard----->
 
@@ -288,13 +349,6 @@ def logout():
     flash('You have been logged out.', 'success')
     return redirect(url_for('login'))
 
-# @app.route('/quiz')
-# def quiz():
-#     return render_template('quiz.html')
-
-# @app.route('/result')   
-# def result():
-#     return render_template('score.html')
 
 if __name__ == '__main__':
     with app.app_context():  # is used to push the application context for performing operations that require access to the current Flask app.

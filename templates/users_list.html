@@ -1,0 +1,45 @@
+{% extends "navbar.html" %}
+
+{% block title %}Users List{% endblock %}
+
+{% block content %}
+    <h3 class="mb-4 text-white">Users Details</h3>
+    <div class="card p-3 shadow-sm">
+        <div class="card-body">
+            <table class="table table-bordered text-center">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Full Name</th>
+                        <th>Qualification</th>
+                        <th>Date of Birth</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.full_name }}</td>
+                        <td>{{ user.qualification }}</td>
+                        <td>{{ user.dob }}</td>
+                        <td>
+                            <span class="badge bg-success btn-status">Active</span>
+                        </td>
+                        <td>
+                            <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-danger">
+                                    Delete
+                                </button>
+                            </form>
+                            
+                            
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
