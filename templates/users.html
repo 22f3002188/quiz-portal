@@ -31,6 +31,7 @@
         <table class="table table-striped">
             <thead class="table-dark">
                 <tr>
+                    <th>Quiz Name</th>
                     <th>Chapter</th>
                     <th>Subject</th>
                     <th>Duration</th>
@@ -41,6 +42,7 @@
             <tbody>
                 {% for quiz in quizzes %}
                 <tr>
+                    <td>{{ quiz.quiz_name }}</td>
                     <td>{{ quiz.chapter }}</td>
                     <td>{{ quiz.subject }}</td>
                     <td>{{ quiz.time_duration }}</td>

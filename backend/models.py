@@ -50,6 +50,7 @@ class Quiz(db.Model):
     __tablename__ = 'quiz'
     id = db.Column(db.Integer, primary_key=True)
     chapter_id = db.Column(db.Integer, db.ForeignKey('chapter.id', ondelete='CASCADE'), nullable=False)
+    quiz_name = db.Column(db.String, nullable=False)
     date_of_quiz = db.Column(db.DateTime, nullable=False)
     time_duration = db.Column(db.Time, nullable=False)
     questions = db.relationship('Question', backref='quiz',lazy=True, cascade='all, delete-orphan')

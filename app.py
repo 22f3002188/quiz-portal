@@ -185,36 +185,56 @@ def view_quizzes(chapter_id):
 @app.route('/chapter/<int:chapter_id>/quiz/add', methods=['GET', 'POST'])
 def add_quiz(chapter_id):
     chapter = Chapter.query.get_or_404(chapter_id)
-    
+
     if request.method == 'POST':
-            date_str = request.form.get('date_of_quiz')
-            time_str = request.form.get('time_duration')
+        quiz_name = request.form.get('quiz_name')  # Get quiz name from form
+        date_str = request.form.get('date_of_quiz')
+        time_str = request.form.get('time_duration')
 
-            date_of_quiz = datetime.strptime(date_str, "%Y-%m-%dT%H:%M")
-            time_duration = datetime.strptime(time_str, "%H:%M").time()  # Convert to `time` object
+        if not quiz_name:  # Ensure quiz name is provided
+            flash('Quiz name is required!', 'danger')
+            return redirect(request.referrer)
 
-            new_quiz = Quiz(chapter_id=chapter_id, date_of_quiz=date_of_quiz, time_duration=time_duration)
-            db.session.add(new_quiz)
-            db.session.commit()
-            flash('Quiz added successfully!', 'success')
-            return redirect(url_for('view_quizzes', chapter_id=chapter_id))
+        date_of_quiz = datetime.strptime(date_str, "%Y-%m-%d").date()  # Convert to `date` object
+        time_duration = datetime.strptime(time_str, "%H:%M").time()  # Convert to `time` object
+
+        new_quiz = Quiz(
+            quiz_name=quiz_name,  # Include quiz name
+            chapter_id=chapter_id, 
+            date_of_quiz=date_of_quiz, 
+            time_duration=time_duration
+        )
+        db.session.add(new_quiz)
+        db.session.commit()
+        flash('Quiz added successfully!', 'success')
+        return redirect(url_for('view_quizzes', chapter_id=chapter_id))
+
     return render_template('add_quiz.html', chapter=chapter)
+
 
 @app.route('/quiz/<int:quiz_id>/edit', methods=['GET', 'POST'])
 def edit_quiz(quiz_id):
     quiz = Quiz.query.get_or_404(quiz_id)
 
     if request.method == 'POST':
+        quiz_name = request.form.get('quiz_name')  # Get quiz name
         date_str = request.form.get('date_of_quiz')
         time_str = request.form.get('time_duration')
 
-        quiz.date_of_quiz = datetime.strptime(date_str, "%Y-%m-%dT%H:%M")
-        quiz.time_duration = datetime.strptime(time_str, "%H:%M:%S").time()  # Convert to time object
+        if not quiz_name:  # Ensure quiz name is provided
+            flash('Quiz name is required!', 'danger')
+            return redirect(request.referrer)
+
+        quiz.quiz_name = quiz_name  # Update quiz name
+        quiz.date_of_quiz = datetime.strptime(date_str, "%Y-%m-%d").date()  # Convert to `date`
+        quiz.time_duration = datetime.strptime(time_str, "%H:%M").time()  # Convert to `time`
     
         db.session.commit()
+        flash('Quiz updated successfully!', 'success')
         return redirect(url_for('view_quizzes', chapter_id=quiz.chapter_id))
 
     return render_template('edit_quiz.html', quiz=quiz)
+
 
 @app.route('/quiz/<int:quiz_id>/delete', methods=['POST'])
 def delete_quiz(quiz_id):
@@ -340,7 +360,7 @@ def delete_user(user_id):
 @app.route('/quizzes')
 def all_quizzes():
     quizzes = (
-        db.session.query(Quiz.id, Quiz.time_duration, Quiz.date_of_quiz, 
+        db.session.query(Quiz.id, Quiz.quiz_name, Quiz.time_duration, Quiz.date_of_quiz, 
                          Chapter.name.label("chapter"), Subject.name.label("subject"))
         .join(Chapter, Quiz.chapter_id == Chapter.id)
         .join(Subject, Chapter.subject_id == Subject.id)

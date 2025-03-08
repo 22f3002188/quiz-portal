@@ -10,13 +10,14 @@
     <div class="container mt-5">
         <h2>Edit Quiz</h2>
         <form action="{{ url_for('edit_quiz', quiz_id=quiz.id) }}" method="POST">
+            <label>Quiz Name:</label>
+            <input type="text" name="quiz_name" class="form-control" value="{{ quiz.quiz_name }}" required>
             <label>Quiz Date:</label>
-            <input type="datetime-local" name="date_of_quiz" class="form-control" 
-                   value="{{ quiz.date_of_quiz.strftime('%Y-%m-%dT%H:%M') }}" required>
-            
-            <label>Time Duration (HH:MM:SS):</label>
+            <input type="date" name="date_of_quiz" class="form-control" 
+                   value="{{ quiz.date_of_quiz.strftime('%Y-%m-%d') }}" required>
+            <label>Time Duration (HH:MM):</label>
             <input type="time" name="time_duration" class="form-control" 
-                   value="{{ quiz.time_duration.strftime('%H:%M:%S') }}" required>
+                   value="{{ quiz.time_duration.strftime('%H:%M') }}" required>
             
             <button type="submit" class="btn btn-primary mt-3">Update Quiz</button>
             <a href="{{ url_for('view_quizzes', chapter_id=quiz.chapter_id) }}" class="btn btn-secondary mt-3">Cancel</a>

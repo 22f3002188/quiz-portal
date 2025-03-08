@@ -15,6 +15,7 @@
                         <thead class="table-dark">
                             <tr>
                                 <th>ID</th>
+                                <th>Quiz Name</th>
                                 <th>Date</th>
                                 <th>Duration</th>
                                 <th>Actions</th>
@@ -24,7 +25,8 @@
                             {% for quiz in quizzes %}
                             <tr class="table-light">
                                 <td class="fw-bold">{{ quiz.id }}</td>
-                                <td>{{ quiz.date_of_quiz.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>{{ quiz.quiz_name }}</td>
+                                <td>{{ quiz.date_of_quiz.strftime('%Y-%m-%d') }}</td>
                                 <td>{{ quiz.time_duration }}</td>
                                 <td>
                                     <div class="d-flex justify-content-center gap-2">

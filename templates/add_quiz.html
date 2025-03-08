@@ -10,10 +10,11 @@
     <div class="container mt-5">
         <h2>Create Quiz</h2>
         <form action="{{ url_for('add_quiz', chapter_id=chapter.id) }}" method="POST">
+            <label>quiz name:</label>
+            <input type="text" name="quiz_name" class="form-control" required>
             <label>Quiz Date:</label>
-            <input type="datetime-local" name="date_of_quiz" class="form-control" required>
-            
-            <label>Time Duration (HH:MM:SS):</label>
+            <input type="date" name="date_of_quiz" class="form-control" required>
+            <label>Time Duration (HH:MM):</label>
             <input type="time" name="time_duration" class="form-control" required>
             
             <div class="mt-3">
