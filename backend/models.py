@@ -52,9 +52,7 @@ class Quiz(db.Model):
     chapter_id = db.Column(db.Integer, db.ForeignKey('chapter.id', ondelete='CASCADE'), nullable=False)
     date_of_quiz = db.Column(db.DateTime, nullable=False)
     time_duration = db.Column(db.Time, nullable=False)
-    # Relationship to questions (one-to-many)
     questions = db.relationship('Question', backref='quiz',lazy=True, cascade='all, delete-orphan')
-    # Relationship to track scores for this quiz
     scores = db.relationship('Score', backref='quiz',lazy=True, cascade='all, delete-orphan')
 
 class Question(db.Model):

@@ -85,12 +85,11 @@ def signup():
 @app.route('/admin')
 def admin_dashboard():
     subjects = Subject.query.all()
-    chapters = Chapter.query.all()# Fetch all chapters
-    return render_template('admin.html', subjects=subjects, chapters=chapters)
+    return render_template('admin.html', subjects=subjects)
   
 
+# -----------------------subjects-----------------------
 
-# CRUD for Subjects
 @app.route('/subject/add', methods=['GET', 'POST'])
 def manage_subjects():
     if request.method == 'POST':
@@ -129,6 +128,7 @@ def delete_subject(id):
         db.session.commit()
     return redirect(url_for('admin_dashboard'))
 
+#----------------------chapters----------------------
 
 @app.route('/subject/<int:subject_id>/chapters')
 def view_chapters(subject_id):
@@ -155,12 +155,6 @@ def add_chapter(subject_id):
         return redirect(url_for('view_chapters', subject_id=subject_id))
     return render_template('chapter.html', subject=subject)
 
-@app.route('/chapter/<int:chapter_id>/quizzes')
-def view_quizzes(chapter_id):
-    chapter = Chapter.query.get_or_404(chapter_id)
-    quizzes = Quiz.query.filter_by(chapter_id=chapter_id).all()
-    return render_template('view_quizzes.html', chapter=chapter, quizzes=quizzes)
-
 @app.route('/chapter/<int:chapter_id>/edit', methods=['GET', 'POST'])
 def edit_chapter(chapter_id):
     chapter = Chapter.query.get_or_404(chapter_id)
@@ -179,6 +173,14 @@ def delete_chapter(chapter_id):
     db.session.commit()
     flash('Chapter deleted successfully!', 'success')
     return redirect(url_for('view_chapters', subject_id=chapter.subject_id))
+
+#----------------------quizzes----------------------
+
+@app.route('/chapter/<int:chapter_id>/quizzes')
+def view_quizzes(chapter_id):
+    chapter = Chapter.query.get_or_404(chapter_id)
+    quizzes = Quiz.query.filter_by(chapter_id=chapter_id).all()
+    return render_template('view_quizzes.html', chapter=chapter, quizzes=quizzes)
 
 @app.route('/chapter/<int:chapter_id>/quiz/add', methods=['GET', 'POST'])
 def add_quiz(chapter_id):
@@ -223,13 +225,13 @@ def delete_quiz(quiz_id):
     flash('Quiz deleted successfully!', 'success')
     return redirect(url_for('view_quizzes', chapter_id=quiz.chapter_id))
 
+#----------------------questions----------------------
+
 @app.route('/quiz/<int:quiz_id>/questions')
 def view_questions(quiz_id):
     quiz = Quiz.query.get_or_404(quiz_id)  # Fetch the quiz object
     questions = Question.query.filter_by(quiz_id=quiz_id).all()  # Fetch questions related to this quiz
     return render_template('view_questions.html', quiz=quiz, questions=questions)  # Pass 'quiz' to the template
-
-
 
 @app.route('/quiz/<int:quiz_id>/question/add', methods=['GET', 'POST'])
 def add_question(quiz_id):
@@ -270,7 +272,6 @@ def add_question(quiz_id):
 
     return render_template('add_question.html', quiz=quiz)
 
-
 @app.route('/quiz/<int:quiz_id>/question/<int:question_id>/edit', methods=['GET', 'POST'])
 def edit_question(quiz_id, question_id):
     quiz = Quiz.query.get_or_404(quiz_id)  # Fetch quiz details
@@ -308,10 +309,6 @@ def edit_question(quiz_id, question_id):
 
     return render_template('edit_question.html', quiz=quiz, question=question)
 
-
-
-
-# Route to Delete Question
 @app.route('/question/<int:question_id>/delete', methods=['POST'])
 def delete_question(question_id):
     question = Question.query.get_or_404(question_id)
@@ -320,8 +317,7 @@ def delete_question(question_id):
     flash("Question deleted successfully!", "success")
     return redirect(url_for('view_questions', quiz_id=question.quiz_id))
 
-
-
+#--------------------------------users list--------------------------------
 
 @app.route('/users')
 def users():
@@ -336,12 +332,13 @@ def delete_user(user_id):
     
     return redirect(url_for('users')) 
 
-# <-----user_dashboard----->
+
+# ----------------------user_dashboard--------------------------------
 
 
 @app.route('/user_dashboard')
 def user_dashboard():
-    return render_template('user.html')
+    return render_template('users.html')
 
 @app.route('/logout')
 def logout():

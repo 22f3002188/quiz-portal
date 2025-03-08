@@ -5,29 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signup | Quiz Master</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <!-- <style>
-        body {
-            background: linear-gradient(to right, #ff416c, #ff4b2b);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .card {
-            border-radius: 12px;
-            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        .btn {
-            transition: all 0.3s ease-in-out;
-        }
-        .btn:hover {
-            transform: scale(1.05);
-        }
-    </style> -->
 </head>
 <body>
-
-    <div class="container">
+    <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <div class="card p-4">
@@ -38,19 +18,19 @@
                     <form method="POST" action="{{ url_for('signup') }}">
                         <div class="mb-3">
                             <label for="email" class="form-label">User Name (E-mail)</label>
-                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter Your Email" required>
+                            <input type="email" class="form-control" id="email" name="email" required>
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" placeholder="Enter Your Password" required>
+                            <input type="password" class="form-control" id="password" name="password" required>
                         </div> 
                         <div class="mb-3">
                             <label for="full_name" class="form-label">Full Name</label>
-                            <input type="text" class="form-control" id="full_name" name="full_name" placeholder="Enter Your Full Name" required>
+                            <input type="text" class="form-control" id="full_name" name="full_name" required>
                         </div> 
                         <div class="mb-3">
                             <label for="qualification" class="form-label">Qualification</label>
-                            <input type="text" class="form-control" id="qualification" name="qualification" placeholder="Enter Your Qualification" required>
+                            <input type="text" class="form-control" id="qualification" name="qualification" required>
                         </div>
                         <div class="mb-3">
                             <label for="dob" class="form-label">Date of Birth</label>
@@ -64,21 +44,10 @@
                         </div>  
                     </form>
                 </div>
-
-                {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    {% for message in messages %}
-                    <div class="alert alert-danger text-center mt-3" role="alert">
-                        {{ message }}
-                    </div>
-                    {% endfor %}
-                {% endif %}
-                {% endwith %}
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>
