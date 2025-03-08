@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attempt Quiz</title>
+    <title>Attempt Quiz - {{ quiz.chapter.name }}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body>
@@ -15,26 +15,30 @@
             <div class="card mt-3">
                 <div class="card-body">
                     <h5 class="card-title">Q{{ loop.index }}: {{ question.question_statement }}</h5>
+                    
+                    <!-- Option 1 -->
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="{{ question.id }}" value="{{ question.option1 }}" required>
+                        <input class="form-check-input" type="radio" name="q{{ question.id }}" value="{{ question.option1 }}" required>
                         <label class="form-check-label">{{ question.option1 }}</label>
                     </div>
+                    
+                    <!-- Option 2 -->
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="{{ question.id }}" value="{{ question.option2 }}">
+                        <input class="form-check-input" type="radio" name="q{{ question.id }}" value="{{ question.option2 }}" required>
                         <label class="form-check-label">{{ question.option2 }}</label>
                     </div>
-                    {% if question.option3 %}
+
+                    <!-- Option 3 -->
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="{{ question.id }}" value="{{ question.option3 }}">
+                        <input class="form-check-input" type="radio" name="q{{ question.id }}" value="{{ question.option3 }}">
                         <label class="form-check-label">{{ question.option3 }}</label>
                     </div>
-                    {% endif %}
-                    {% if question.option4 %}
+
+                    <!-- Option 4 -->
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="{{ question.id }}" value="{{ question.option4 }}">
+                        <input class="form-check-input" type="radio" name="q{{ question.id }}" value="{{ question.option4 }}">
                         <label class="form-check-label">{{ question.option4 }}</label>
                     </div>
-                    {% endif %}
                 </div>
             </div>
             {% endfor %}
@@ -44,5 +48,7 @@
             </div>
         </form>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

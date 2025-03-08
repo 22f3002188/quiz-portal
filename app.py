@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from backend.models import Score, create_admin, db, User, Subject, Chapter, Quiz, Question
 from datetime import datetime, date
+from sqlalchemy.orm import joinedload
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quiz_portal.db' #having db file
@@ -13,6 +14,7 @@ db.init_app(app)  # flask app is connected to db(connecting sqlalchemy)
 def home():
         return render_template('home.html')
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -23,26 +25,29 @@ def login():
             flash('Please fill all the fields')
             return redirect(url_for('login'))
 
-        user = User.query.filter_by(email=email).first()  # available in database or not checking
+        user = User.query.filter_by(email=email).first()  # Check if user exists
 
         if not user:
             flash('User does not exist!')
             return redirect(url_for('login'))
 
+        # Use check_password_hash to compare hashed passwords
         if user and user.password == password:
+            session['user_id'] = user.id  # Store user ID in session after successful login
+            session['full_name'] = user.full_name  # Store username in session
+            
             if user.role == 'admin':
                 flash('Admin login successful!', 'success')
                 return redirect(url_for('admin_dashboard'))
             else:
                 flash('Login successful!', 'success')
                 return redirect(url_for('all_quizzes'))  
-            #Navigation after an action (e.g., login, form submission)
-             #redirect: Used after performing an action that requires the user to be taken to a different page (e.g., after form submission, login, logout).
         else:
             flash('Invalid username or password', 'danger')
             return redirect(url_for('login'))
     
     return render_template('login.html')
+
 #  Displaying a webpage (e.g., showing a form, displaying data)
 #  render_template: Used to display a web page (e.g., showing a form, displaying data).
 
@@ -375,11 +380,11 @@ def search():
 # ----------------------user_dashboard--------------------------------
 
 
-@app.route('/quizzes')
+@app.route('/quizzes', methods=['GET'])
 def all_quizzes():
     current_date = date.today()  # Get today's date
 
-    quizzes = (
+    quizzes_query = (
         db.session.query(
             Quiz.id, 
             Quiz.quiz_name, 
@@ -390,8 +395,10 @@ def all_quizzes():
         )
         .join(Chapter, Quiz.chapter_id == Chapter.id)
         .join(Subject, Chapter.subject_id == Subject.id)
-        .all()
     )
+
+
+    quizzes = quizzes_query.all()
 
     # Convert all `date_of_quiz` to `date` objects safely
     formatted_quizzes = []
@@ -407,51 +414,88 @@ def all_quizzes():
 
     return render_template('users.html', quizzes=formatted_quizzes, current_date=current_date)
 
-@app.route('/quiz/<int:quiz_id>', methods=['GET', 'POST'])
+
+from flask import session
+
+@app.route('/quiz/<int:quiz_id>/attempt', methods=['GET', 'POST'])
 def attempt_quiz(quiz_id):
     quiz = Quiz.query.get_or_404(quiz_id)
+    chapter = quiz.chapter  # Get the chapter associated with this quiz
+    subject = chapter.subject  # Get the subject associated with the chapter
     questions = Question.query.filter_by(quiz_id=quiz_id).all()
-
+    
     if request.method == 'POST':
-        user_answers = request.form.to_dict()
-        correct_answers = {str(q.id): q.correct_answer for q in questions}
-        score = sum(1 for q_id, answer in user_answers.items() if answer == correct_answers[q_id])
-
-        # Get user_id from session (assuming user is logged in)
-        user_id = session.get('user_id')
-
-        new_score = Score(user_id=user_id, quiz_id=quiz_id, score=score)
-        db.session.add(new_score)
+        user_score = 0
+        
+        # Check answers for each question
+        for question in questions:
+            user_answer = request.form.get(f'q{question.id}')
+            
+            # Compare user's answer to the correct answer (by matching with the selected option)
+            if user_answer == getattr(question, question.correct_answer):
+                user_score += 1
+        
+        # Save the score in the database
+        user_id = session.get('user_id')  # Assuming the user ID is stored in the session
+        
+        score_entry = Score(
+            user_id=user_id,  # Get user_id from session or pass it from the frontend
+            quiz_id=quiz_id,
+            score=user_score,  # Total score
+        )
+        db.session.add(score_entry)
         db.session.commit()
 
-        flash(f'Quiz submitted! Your Score: {score}/{len(questions)}', 'success')
-        return redirect(url_for('all_quizzes'))
-
+        # Render the score directly (as a number)
+        return render_template('show_score.html', score=user_score, total=len(questions))
+    
     return render_template('attempt_quiz.html', quiz=quiz, questions=questions)
 
-@app.route('/scores')
-def scores():
-    user_id = session.get('user_id')
-    scores = (
-        db.session.query(Score, Quiz, Chapter, Subject)
-        .join(Quiz, Score.quiz_id == Quiz.id)
-        .join(Chapter, Quiz.chapter_id == Chapter.id)
-        .join(Subject, Chapter.subject_id == Subject.id)
-        .filter(Score.user_id == user_id)
-        .all()
-    )
-    return render_template('scores.html', scores=scores)
 
-@app.route('/user/search_quiz')
-def user_search_quiz():
-    query = request.args.get('q', '').strip()
-    if query:
-        quizzes = Quiz.query.filter(Quiz.quiz_name.ilike(f"%{query}%")).all()
-    else:
-        quizzes = Quiz.query.all()  # Show all quizzes if no search term provided
 
-    current_date = datetime.now().date()  # Get current date to check quiz availability
-    return render_template('users.html', quizzes=quizzes, current_date=current_date)
+@app.route('/score/<int:score_id>', methods=['GET'])
+def show_score(score_id):
+    score_entry = Score.query.get_or_404(score_id)
+    return render_template('show_score.html', score_entry=score_entry)
+
+
+
+@app.route('/user/scores', methods=['GET'])
+def user_scores():
+    user_id = session.get('user_id')  # Get the logged-in user's ID from session
+    
+    # Query to get the scores for the logged-in user
+    scores_query = db.session.query(
+        Score.score,
+        Quiz.quiz_name,
+        Chapter.name.label('chapter'),
+        Subject.name.label('subject')
+    ).join(Quiz, Score.quiz_id == Quiz.id) \
+     .join(Chapter, Quiz.chapter_id == Chapter.id) \
+     .join(Subject, Chapter.subject_id == Subject.id) \
+     .filter(Score.user_id == user_id)  # Only get scores for the current user
+
+    scores = scores_query.all()  # Execute the query
+    
+    return render_template('user_scores.html', scores=scores)
+
+
+
+# @app.route('/scores')
+# def scores():
+#     user_id = session.get('user_id')
+#     scores = (
+#         db.session.query(Score, Quiz, Chapter, Subject)
+#         .join(Quiz, Score.quiz_id == Quiz.id)
+#         .join(Chapter, Quiz.chapter_id == Chapter.id)
+#         .join(Subject, Chapter.subject_id == Subject.id)
+#         .filter(Score.user_id == user_id)
+#         .all()
+#     )
+#     return render_template('scores.html', scores=scores)
+
+
+
 
 # ----------------------logout--------------------------------
 @app.route('/logout')

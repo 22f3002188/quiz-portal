@@ -15,14 +15,16 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item"><a class="nav-link text-white" href="#">Home</a></li>
-                    <li class="nav-item"><a class="nav-link text-white" href="#">Scores</a></li>
+                    <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('user_scores')}}">Scores</a></li>
                     <li class="nav-item"><a class="nav-link text-white" href="#">Summary</a></li>
                     <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('logout') }}">Logout</a></li>
                 </ul>
-                <form class="d-flex">
-                    <input class="form-control me-2" type="search" placeholder="Search">
-                    <span class="navbar-text text-white ms-2">Welcome User</span>
-                </form>
+                <!-- <form action="{{ url_for('search') }}" method="get" class="d-flex">
+                    <input class="form-control me-2" type="search" name="q" placeholder="Search quizzes" aria-label="Search" required>
+                    <button class="btn btn-outline-light" type="submit">Search</button>             -->
+                <span class="navbar-text text-white ms-3">
+                    <i class="bi bi-person-circle"></i> Welcome, {{ session['full_name'] }}
+                </span>
             </div>
         </div>
     </nav>
