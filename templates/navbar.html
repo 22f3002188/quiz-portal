@@ -20,9 +20,14 @@
                     <li class="nav-item"><a class="nav-link" href="#">Summary</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
                 </ul>
-                <form class="d-flex">
-                    <span class="navbar-text text-white fw-bold ms-3">Welcome Admin</span>
+                
+                <!-- Search Form Directly Inside Navbar -->
+                <form action="{{ url_for('search') }}" method="get" class="d-flex">
+                    <input class="form-control me-2" type="search" name="q" placeholder="Search users, subjects, chapters, quizzes" aria-label="Search" required>
+                    <button class="btn btn-outline-success" type="submit">Search</button>
                 </form>
+
+                <span class="navbar-text text-white fw-bold ms-3">Welcome Admin</span>
             </div>
         </div>
     </nav>

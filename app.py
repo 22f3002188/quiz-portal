@@ -352,6 +352,25 @@ def delete_user(user_id):
     
     return redirect(url_for('users')) 
 
+#----------------------search--------------------------------
+@app.route('/search')
+def search():
+    query = request.args.get('q', '').strip()
+
+    if not query:
+        flash("Please enter a search term.", "warning")
+        return redirect(url_for('admin_dashboard'))
+
+    # Perform case-insensitive search using SQLAlchemy `ilike`
+    users = User.query.filter(User.email.ilike(f"%{query}%")).all()
+    subjects = Subject.query.filter(Subject.name.ilike(f"%{query}%")).all()
+    chapters = Chapter.query.filter(Chapter.name.ilike(f"%{query}%")).all()
+    quizzes = Quiz.query.filter(Quiz.quiz_name.ilike(f"%{query}%")).all()
+
+    return render_template('search_results.html', query=query, users=users, subjects=subjects, chapters=chapters, quizzes=quizzes)
+
+
+
 
 # ----------------------user_dashboard--------------------------------
 
@@ -422,6 +441,17 @@ def scores():
         .all()
     )
     return render_template('scores.html', scores=scores)
+
+@app.route('/user/search_quiz')
+def user_search_quiz():
+    query = request.args.get('q', '').strip()
+    if query:
+        quizzes = Quiz.query.filter(Quiz.quiz_name.ilike(f"%{query}%")).all()
+    else:
+        quizzes = Quiz.query.all()  # Show all quizzes if no search term provided
+
+    current_date = datetime.now().date()  # Get current date to check quiz availability
+    return render_template('users.html', quizzes=quizzes, current_date=current_date)
 
 # ----------------------logout--------------------------------
 @app.route('/logout')
