@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
-from backend.models import create_admin, db, User, Subject, Chapter, Quiz, Question
+from backend.models import Score, create_admin, db, User, Subject, Chapter, Quiz, Question
 from datetime import datetime, time
 
 app = Flask(__name__)
@@ -348,6 +348,42 @@ def all_quizzes():
     )
     return render_template('users.html', quizzes=quizzes)
 
+@app.route('/quiz/<int:quiz_id>', methods=['GET', 'POST'])
+def attempt_quiz(quiz_id):
+    quiz = Quiz.query.get_or_404(quiz_id)
+    questions = Question.query.filter_by(quiz_id=quiz_id).all()
+
+    if request.method == 'POST':
+        user_answers = request.form.to_dict()
+        correct_answers = {str(q.id): q.correct_answer for q in questions}
+        score = sum(1 for q_id, answer in user_answers.items() if answer == correct_answers[q_id])
+
+        # Get user_id from session (assuming user is logged in)
+        user_id = session.get('user_id')
+
+        new_score = Score(user_id=user_id, quiz_id=quiz_id, score=score)
+        db.session.add(new_score)
+        db.session.commit()
+
+        flash(f'Quiz submitted! Your Score: {score}/{len(questions)}', 'success')
+        return redirect(url_for('all_quizzes'))
+
+    return render_template('attempt_quiz.html', quiz=quiz, questions=questions)
+
+@app.route('/scores')
+def scores():
+    user_id = session.get('user_id')
+    scores = (
+        db.session.query(Score, Quiz, Chapter, Subject)
+        .join(Quiz, Score.quiz_id == Quiz.id)
+        .join(Chapter, Quiz.chapter_id == Chapter.id)
+        .join(Subject, Chapter.subject_id == Subject.id)
+        .filter(Score.user_id == user_id)
+        .all()
+    )
+    return render_template('scores.html', scores=scores)
+
+# ----------------------logout--------------------------------
 @app.route('/logout')
 def logout():
     session.clear()

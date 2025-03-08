@@ -45,7 +45,9 @@
                     <td>{{ quiz.subject }}</td>
                     <td>{{ quiz.time_duration }}</td>
                     <td>{{ quiz.date_of_quiz.strftime('%Y-%m-%d %H:%M') }}</td>
-                    <td><button class="btn btn-primary">Start Quiz</button></td>
+                    <!-- <td><button class="btn btn-primary">Start Quiz</button></td> -->
+                    <td><a href="{{ url_for('attempt_quiz', quiz_id=quiz.id) }}" class="btn btn-primary">Start Quiz</a></td>
+
                 </tr>
                 {% endfor %}
             </tbody>
