@@ -1,33 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Quizzes</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-primary">
-        <div class="container-fluid">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link text-white" href="#">Home</a></li>
-                    <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('user_scores')}}">Scores</a></li>
-                    <li class="nav-item"><a class="nav-link text-white" href="#">Summary</a></li>
-                    <li class="nav-item"><a class="nav-link text-white" href="{{ url_for('logout') }}">Logout</a></li>
-                </ul>
-                <!-- <form action="{{ url_for('search') }}" method="get" class="d-flex">
-                    <input class="form-control me-2" type="search" name="q" placeholder="Search quizzes" aria-label="Search" required>
-                    <button class="btn btn-outline-light" type="submit">Search</button>             -->
-                <span class="navbar-text text-white ms-3">
-                    <i class="bi bi-person-circle"></i> Welcome, {{ session['full_name'] }}
-                </span>
-            </div>
-        </div>
-    </nav>
+{% extends "usernavbar.html" %}
+
+{% block title %}Users Dashboard{% endblock %}
+
+{% block content %}
     <div class="container mt-5">
         <h2 class="text-center">All Quizzes</h2>
         <table class="table table-striped">
@@ -63,3 +38,4 @@
     </div>
 </body>
 </html>
+{% endblock %}
