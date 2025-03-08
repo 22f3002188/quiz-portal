@@ -35,7 +35,7 @@ def login():
                 return redirect(url_for('admin_dashboard'))
             else:
                 flash('Login successful!', 'success')
-                return redirect(url_for('user_dashboard'))  
+                return redirect(url_for('all_quizzes'))  
             #Navigation after an action (e.g., login, form submission)
              #redirect: Used after performing an action that requires the user to be taken to a different page (e.g., after form submission, login, logout).
         else:
@@ -336,9 +336,17 @@ def delete_user(user_id):
 # ----------------------user_dashboard--------------------------------
 
 
-@app.route('/user_dashboard')
-def user_dashboard():
-    return render_template('users.html')
+
+@app.route('/quizzes')
+def all_quizzes():
+    quizzes = (
+        db.session.query(Quiz.id, Quiz.time_duration, Quiz.date_of_quiz, 
+                         Chapter.name.label("chapter"), Subject.name.label("subject"))
+        .join(Chapter, Quiz.chapter_id == Chapter.id)
+        .join(Subject, Chapter.subject_id == Subject.id)
+        .all()
+    )
+    return render_template('users.html', quizzes=quizzes)
 
 @app.route('/logout')
 def logout():
