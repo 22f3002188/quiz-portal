@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from backend.models import Score, create_admin, db, User, Subject, Chapter, Quiz, Question
-from datetime import datetime, time
+from datetime import datetime, date
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quiz_portal.db' #having db file
@@ -356,17 +356,37 @@ def delete_user(user_id):
 # ----------------------user_dashboard--------------------------------
 
 
-
 @app.route('/quizzes')
 def all_quizzes():
+    current_date = date.today()  # Get today's date
+
     quizzes = (
-        db.session.query(Quiz.id, Quiz.quiz_name, Quiz.time_duration, Quiz.date_of_quiz, 
-                         Chapter.name.label("chapter"), Subject.name.label("subject"))
+        db.session.query(
+            Quiz.id, 
+            Quiz.quiz_name, 
+            Quiz.time_duration, 
+            Quiz.date_of_quiz, 
+            Chapter.name.label("chapter"), 
+            Subject.name.label("subject")
+        )
         .join(Chapter, Quiz.chapter_id == Chapter.id)
         .join(Subject, Chapter.subject_id == Subject.id)
         .all()
     )
-    return render_template('users.html', quizzes=quizzes)
+
+    # Convert all `date_of_quiz` to `date` objects safely
+    formatted_quizzes = []
+    for quiz in quizzes:
+        formatted_quizzes.append({
+            "id": quiz.id,
+            "quiz_name": quiz.quiz_name,
+            "time_duration": quiz.time_duration,
+            "date_of_quiz": quiz.date_of_quiz.date() if isinstance(quiz.date_of_quiz, datetime) else quiz.date_of_quiz,
+            "chapter": quiz.chapter,
+            "subject": quiz.subject
+        })
+
+    return render_template('users.html', quizzes=formatted_quizzes, current_date=current_date)
 
 @app.route('/quiz/<int:quiz_id>', methods=['GET', 'POST'])
 def attempt_quiz(quiz_id):

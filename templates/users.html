@@ -46,10 +46,14 @@
                     <td>{{ quiz.chapter }}</td>
                     <td>{{ quiz.subject }}</td>
                     <td>{{ quiz.time_duration }}</td>
-                    <td>{{ quiz.date_of_quiz.strftime('%Y-%m-%d %H:%M') }}</td>
-                    <!-- <td><button class="btn btn-primary">Start Quiz</button></td> -->
-                    <td><a href="{{ url_for('attempt_quiz', quiz_id=quiz.id) }}" class="btn btn-primary">Start Quiz</a></td>
-
+                    <td>{{ quiz.date_of_quiz.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        {% if quiz.date_of_quiz == current_date %}
+                            <a href="{{ url_for('attempt_quiz', quiz_id=quiz.id) }}" class="btn btn-primary">Start Quiz</a>
+                        {% else %}
+                            <button class="btn btn-secondary" disabled>Unavailable</button>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
