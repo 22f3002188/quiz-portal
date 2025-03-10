@@ -22,9 +22,11 @@
                 </ul>
                 
                 <!-- Search Form Directly Inside Navbar -->
-                <form action="{{ url_for('search') }}" method="get" class="d-flex">
-                    <input class="form-control me-2" type="search" name="q" placeholder="Search users, subjects, chapters, quizzes" aria-label="Search" required>
-                    <button class="btn btn-outline-success" type="submit">Search</button>
+                <form action="{{ url_for('search') }}" method="GET" class="mb-3">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="Search users, subjects, chapters, quizzes">
+                        <button class="btn btn-primary" type="submit">Search</button>
+                    </div>
                 </form>
 
                 <span class="navbar-text text-white fw-bold ms-3">Welcome Admin</span>

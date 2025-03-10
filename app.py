@@ -477,20 +477,23 @@ def user_scores():
     
     return render_template('user_scores.html', scores=scores)
 
+from flask import request, flash, redirect, url_for, render_template
+
+@app.route('/search_quizzes')
+def search_quizzes():
+    query = request.args.get('q', '').strip()
+
+    if not query:
+        flash("Please enter a search term.", "warning")
+        return redirect(url_for('all_quizzes'))  # Redirect to all quizzes if no query is provided
+
+    # Perform case-insensitive search using SQLAlchemy `ilike`
+    quizzes = Quiz.query.filter(Quiz.quiz_name.ilike(f"%{query}%")).all()
+    subjects = Subject.query.filter(Subject.name.ilike(f"%{query}%")).all()
+
+    return render_template('search_quizzes.html', query=query, quizzes=quizzes, subjects=subjects)
 
 
-# @app.route('/scores')
-# def scores():
-#     user_id = session.get('user_id')
-#     scores = (
-#         db.session.query(Score, Quiz, Chapter, Subject)
-#         .join(Quiz, Score.quiz_id == Quiz.id)
-#         .join(Chapter, Quiz.chapter_id == Chapter.id)
-#         .join(Subject, Chapter.subject_id == Subject.id)
-#         .filter(Score.user_id == user_id)
-#         .all()
-#     )
-#     return render_template('scores.html', scores=scores)
 
 
 
