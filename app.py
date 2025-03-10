@@ -374,6 +374,74 @@ def search():
     return render_template('search_results.html', query=query, users=users, subjects=subjects, chapters=chapters, quizzes=quizzes)
 
 
+from sqlalchemy.sql import func
+
+
+
+
+from sqlalchemy.sql import func
+
+@app.route('/top_scorers')
+def top_scorers():
+    # Fetch subject-wise top scorers
+    subquery = (
+        db.session.query(
+            Subject.id.label("subject_id"),
+            User.id.label("user_id"),
+            func.sum(Score.score).label("total_score")
+        )
+        .join(Chapter, Chapter.subject_id == Subject.id)
+        .join(Quiz, Quiz.chapter_id == Chapter.id)
+        .join(Score, Score.quiz_id == Quiz.id)
+        .join(User, User.id == Score.user_id)
+        .group_by(Subject.id, User.id)
+        .order_by(Subject.id, func.sum(Score.score).desc())
+        .subquery()
+    )
+
+    top_scorers = (
+        db.session.query(
+            Subject.name.label("subject_name"),
+            User.full_name.label("top_scorer"),
+            subquery.c.total_score
+        )
+        .join(subquery, subquery.c.subject_id == Subject.id)
+        .join(User, User.id == subquery.c.user_id)
+        .group_by(Subject.id)
+        .all()
+    )
+
+    # Fetch subject-wise user attempt counts
+    subject_attempts = (
+        db.session.query(
+            Subject.name.label("subject_name"),
+            func.count(Score.user_id).label("attempt_count")
+        )
+        .join(Chapter, Chapter.subject_id == Subject.id)
+        .join(Quiz, Quiz.chapter_id == Chapter.id)
+        .join(Score, Score.quiz_id == Quiz.id)
+        .group_by(Subject.id)
+        .all()
+    )
+
+    # Convert data for Chart.js
+    chart_data = {
+        "labels": [scorer.subject_name for scorer in top_scorers],
+        "scores": [scorer.total_score for scorer in top_scorers],
+        "scorers": [scorer.top_scorer for scorer in top_scorers]
+    }
+
+    attempt_chart_data = {
+        "labels": [attempt.subject_name for attempt in subject_attempts],
+        "attempts": [attempt.attempt_count for attempt in subject_attempts]
+    }
+
+    return render_template('top_scorers.html', chart_data=chart_data, attempt_chart_data=attempt_chart_data)
+
+
+
+
+
 
 
 # ----------------------user_dashboard--------------------------------
@@ -492,6 +560,54 @@ def search_quizzes():
     subjects = Subject.query.filter(Subject.name.ilike(f"%{query}%")).all()
 
     return render_template('search_quizzes.html', query=query, quizzes=quizzes, subjects=subjects)
+
+from collections import Counter
+
+@app.route('/quizzes_charts', methods=['GET'])
+def quizzes_charts():
+    quizzes_query = (
+        db.session.query(
+            Quiz.id, 
+            Quiz.quiz_name, 
+            Quiz.date_of_quiz, 
+            Chapter.name.label("chapter"), 
+            Subject.name.label("subject")
+        )
+        .join(Chapter, Quiz.chapter_id == Chapter.id)
+        .join(Subject, Chapter.subject_id == Subject.id)
+    )
+
+    quizzes = quizzes_query.all()
+
+    # Subject-wise quiz count (for bar chart)
+    subject_counts = Counter(quiz.subject for quiz in quizzes)
+    subject_chart_data = {
+        "labels": list(subject_counts.keys()),
+        "quizzes": list(subject_counts.values())
+    }
+
+    # Month-wise quiz attempts (for pie chart)
+    month_counts = Counter()
+    for quiz in quizzes:
+        if isinstance(quiz.date_of_quiz, datetime):
+            month_name = quiz.date_of_quiz.strftime("%B")  # Extract month name
+        else:
+            month_name = datetime.strptime(str(quiz.date_of_quiz).split()[0], "%Y-%m-%d").strftime("%B")  # Remove time
+        month_counts[month_name] += 1
+
+    total_attempts = sum(month_counts.values())
+
+    month_chart_data = {
+        "labels": list(month_counts.keys()),
+        "attempts": list(month_counts.values()),
+        "percentages": [round((count / total_attempts) * 100, 1) for count in month_counts.values()]
+    }
+
+    return render_template('quizzes_charts.html', 
+                           subject_chart_data=subject_chart_data, 
+                           month_chart_data=month_chart_data)
+
+
 
 
 

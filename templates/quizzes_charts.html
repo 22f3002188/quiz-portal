@@ -1,0 +1,97 @@
+{% extends "usernavbar.html" %}
+
+{% block title %}Users Dashboard{% endblock %}
+
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Statistics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        .chart-container { width: 400px; height: 300px; }
+    </style>
+</head>
+<body>
+    <div class="container mt-4 text-center">
+        <h3>Quiz Statistics</h3>
+        
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-5">
+                <h5>Subject-wise Quizzes</h5>
+                <div class="chart-container">
+                    <canvas id="subjectChart"></canvas>
+                </div>
+            </div>
+
+            <div class="col-md-5">
+                <h5>Month-wise Quiz Attempts</h5>
+                <div class="chart-container">
+                    <canvas id="monthChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var subjectChartData = {{ subject_chart_data | tojson }};
+        var monthChartData = {{ month_chart_data | tojson }};
+
+        // Subject-wise Quizzes (Bar Chart)
+        var ctx1 = document.getElementById('subjectChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: subjectChartData.labels,
+                datasets: [{
+                    label: 'Number of Quizzes',
+                    data: subjectChartData.quizzes,
+                    backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        // Month-wise Quiz Attempts (Pie Chart)
+        var ctx2 = document.getElementById('monthChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'pie',
+            data: {
+                labels: monthChartData.labels,
+                datasets: [{
+                    data: monthChartData.attempts,
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                var index = tooltipItem.dataIndex;
+                                return `${monthChartData.labels[index]}: ${monthChartData.attempts[index]} (${monthChartData.percentages[index]}%)`;
+                            }
+                        }
+                    },
+                    datalabels: {
+                        formatter: (value, ctx) => monthChartData.percentages[ctx.dataIndex] + "%",
+                        color: '#fff',
+                        font: { weight: 'bold' }
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+    </script>
+</body>
+{% endblock %}
