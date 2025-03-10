@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from backend.models import Score, create_admin, db, User, Subject, Chapter, Quiz, Question
 from datetime import datetime, date
+from sqlalchemy.sql import func
+from collections import Counter
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quiz_portal.db' #having db file
@@ -373,14 +375,7 @@ def search():
 
     return render_template('search_results.html', query=query, users=users, subjects=subjects, chapters=chapters, quizzes=quizzes)
 
-
-from sqlalchemy.sql import func
-
-
-
-
-from sqlalchemy.sql import func
-
+#----------------------summary--------------------------------
 @app.route('/top_scorers')
 def top_scorers():
     # Fetch subject-wise top scorers
@@ -439,13 +434,7 @@ def top_scorers():
     return render_template('top_scorers.html', chart_data=chart_data, attempt_chart_data=attempt_chart_data)
 
 
-
-
-
-
-
 # ----------------------user_dashboard--------------------------------
-
 
 @app.route('/quizzes', methods=['GET'])
 def all_quizzes():
@@ -518,12 +507,10 @@ def attempt_quiz(quiz_id):
     return render_template('attempt_quiz.html', quiz=quiz, questions=questions)
 
 
-
 @app.route('/score/<int:score_id>', methods=['GET'])
 def show_score(score_id):
     score_entry = Score.query.get_or_404(score_id)
     return render_template('show_score.html', score_entry=score_entry)
-
 
 
 @app.route('/user/scores', methods=['GET'])
@@ -547,6 +534,7 @@ def user_scores():
 
 from flask import request, flash, redirect, url_for, render_template
 
+# ----------------------search_quizzes--------------------------------
 @app.route('/search_quizzes')
 def search_quizzes():
     query = request.args.get('q', '').strip()
@@ -561,8 +549,7 @@ def search_quizzes():
 
     return render_template('search_quizzes.html', query=query, quizzes=quizzes, subjects=subjects)
 
-from collections import Counter
-
+#----------------------------summary_charts--------------------------------
 @app.route('/quizzes_charts', methods=['GET'])
 def quizzes_charts():
     quizzes_query = (
@@ -588,14 +575,6 @@ def quizzes_charts():
 
     return render_template('quizzes_charts.html', 
                            subject_chart_data=subject_chart_data)
-
-
-
-
-
-
-
-
 
 # ----------------------logout--------------------------------
 @app.route('/logout')
