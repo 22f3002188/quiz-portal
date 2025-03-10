@@ -586,26 +586,9 @@ def quizzes_charts():
         "quizzes": list(subject_counts.values())
     }
 
-    # Month-wise quiz attempts (for pie chart)
-    month_counts = Counter()
-    for quiz in quizzes:
-        if isinstance(quiz.date_of_quiz, datetime):
-            month_name = quiz.date_of_quiz.strftime("%B")  # Extract month name
-        else:
-            month_name = datetime.strptime(str(quiz.date_of_quiz).split()[0], "%Y-%m-%d").strftime("%B")  # Remove time
-        month_counts[month_name] += 1
-
-    total_attempts = sum(month_counts.values())
-
-    month_chart_data = {
-        "labels": list(month_counts.keys()),
-        "attempts": list(month_counts.values()),
-        "percentages": [round((count / total_attempts) * 100, 1) for count in month_counts.values()]
-    }
-
     return render_template('quizzes_charts.html', 
-                           subject_chart_data=subject_chart_data, 
-                           month_chart_data=month_chart_data)
+                           subject_chart_data=subject_chart_data)
+
 
 
 
