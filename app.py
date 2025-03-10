@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from backend.models import Score, create_admin, db, User, Subject, Chapter, Quiz, Question
 from datetime import datetime, date
-from sqlalchemy.orm import joinedload
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quiz_portal.db' #having db file
@@ -415,7 +414,6 @@ def all_quizzes():
     return render_template('users.html', quizzes=formatted_quizzes, current_date=current_date)
 
 
-from flask import session
 
 @app.route('/quiz/<int:quiz_id>/attempt', methods=['GET', 'POST'])
 def attempt_quiz(quiz_id):
