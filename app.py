@@ -30,7 +30,6 @@ def login():
             flash('User does not exist!')
             return redirect(url_for('login'))
 
-        # Use check_password_hash to compare hashed passwords
         if user and user.password == password:
             session['user_id'] = user.id  # Store user ID in session after successful login
             session['full_name'] = user.full_name  # Store username in session
@@ -42,7 +41,7 @@ def login():
                 flash('Login successful!', 'success')
                 return redirect(url_for('all_quizzes'))  
         else:
-            flash('Invalid username or password', 'danger')
+            flash('Invalid username or password')
             return redirect(url_for('login'))
     
     return render_template('login.html')
@@ -107,7 +106,6 @@ def manage_subjects():
         new_subject = Subject(name=name, description=description)
         db.session.add(new_subject)
         db.session.commit()
-        flash('Subject added successfully!')
         return redirect(url_for('admin_dashboard'))
     subjects = Subject.query.all()
     return render_template('subjects.html', subjects=subjects)
@@ -119,7 +117,6 @@ def edit_subject(id):
         subject.name = request.form['name']
         subject.description = request.form['description']
         db.session.commit()
-        flash('Subject updated successfully!')
         return redirect(url_for('admin_dashboard'))
 
     return render_template('edit_subject.html', subject=subject)
@@ -155,7 +152,6 @@ def add_chapter(subject_id):
         new_chapter = Chapter(name=name, description=description, subject_id=subject_id)
         db.session.add(new_chapter)
         db.session.commit()
-        flash('Chapter added successfully!', 'success')
         return redirect(url_for('view_chapters', subject_id=subject_id))
     return render_template('chapter.html', subject=subject)
 
@@ -166,7 +162,6 @@ def edit_chapter(chapter_id):
         chapter.name = request.form['name']
         chapter.description = request.form['description']
         db.session.commit()
-        flash('Chapter updated successfully!', 'success')
         return redirect(url_for('view_chapters', subject_id=chapter.subject_id))
     return render_template('edit_chapter.html', chapter=chapter)
 
@@ -175,7 +170,6 @@ def delete_chapter(chapter_id):
     chapter = Chapter.query.get_or_404(chapter_id)
     db.session.delete(chapter)
     db.session.commit()
-    flash('Chapter deleted successfully!', 'success')
     return redirect(url_for('view_chapters', subject_id=chapter.subject_id))
 
 #----------------------quizzes----------------------
@@ -210,7 +204,6 @@ def add_quiz(chapter_id):
         )
         db.session.add(new_quiz)
         db.session.commit()
-        flash('Quiz added successfully!', 'success')
         return redirect(url_for('view_quizzes', chapter_id=chapter_id))
 
     return render_template('add_quiz.html', chapter=chapter)
@@ -234,7 +227,6 @@ def edit_quiz(quiz_id):
         quiz.time_duration = datetime.strptime(time_str, "%H:%M").time()  # Convert to `time`
     
         db.session.commit()
-        flash('Quiz updated successfully!', 'success')
         return redirect(url_for('view_quizzes', chapter_id=quiz.chapter_id))
 
     return render_template('edit_quiz.html', quiz=quiz)
@@ -246,7 +238,6 @@ def delete_quiz(quiz_id):
 
     db.session.delete(quiz)
     db.session.commit()
-    flash('Quiz deleted successfully!', 'success')
     return redirect(url_for('view_quizzes', chapter_id=quiz.chapter_id))
 
 #----------------------questions----------------------
@@ -291,7 +282,6 @@ def add_question(quiz_id):
         )
         db.session.add(new_question)
         db.session.commit()
-        flash("Question added successfully!", "success")
         return redirect(url_for('view_questions', quiz_id=quiz_id))
 
     return render_template('add_question.html', quiz=quiz)
@@ -328,7 +318,6 @@ def edit_question(quiz_id, question_id):
         question.correct_answer = correct_answer
 
         db.session.commit()
-        flash("Question updated successfully!", "success")
         return redirect(url_for('view_questions', quiz_id=quiz_id))
 
     return render_template('edit_question.html', quiz=quiz, question=question)
@@ -338,7 +327,6 @@ def delete_question(question_id):
     question = Question.query.get_or_404(question_id)
     db.session.delete(question)
     db.session.commit()
-    flash("Question deleted successfully!", "success")
     return redirect(url_for('view_questions', quiz_id=question.quiz_id))
 
 #--------------------------------users list--------------------------------
@@ -353,7 +341,6 @@ def delete_user(user_id):
     user = User.query.get(user_id)  # Fetch user by ID
     db.session.delete(user)  # Delete the user from the database
     db.session.commit()  # Commit the deletion
-    
     return redirect(url_for('users')) 
 
 #----------------------search--------------------------------
@@ -370,7 +357,6 @@ def search():
     subjects = Subject.query.filter(Subject.name.ilike(f"%{query}%")).all()
     chapters = Chapter.query.filter(Chapter.name.ilike(f"%{query}%")).all()
     quizzes = Quiz.query.filter(Quiz.quiz_name.ilike(f"%{query}%")).all()
-
     return render_template('search_results.html', query=query, users=users, subjects=subjects, chapters=chapters, quizzes=quizzes)
 
 #----------------------summary--------------------------------
