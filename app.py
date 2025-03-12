@@ -1,8 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from backend.models import Score, create_admin, db, User, Subject, Chapter, Quiz, Question
 from datetime import datetime, date
-from sqlalchemy.sql import func
-from collections import Counter
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quiz_portal.db' #having db file
@@ -376,6 +374,8 @@ def search():
     return render_template('search_results.html', query=query, users=users, subjects=subjects, chapters=chapters, quizzes=quizzes)
 
 #----------------------summary--------------------------------
+from collections import Counter
+from sqlalchemy.sql import func
 @app.route('/top_scorers')
 def top_scorers():
     # Fetch subject-wise top scorers considering highest quiz attempt per user
