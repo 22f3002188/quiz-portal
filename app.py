@@ -378,19 +378,18 @@ def search():
 #----------------------summary--------------------------------
 @app.route('/top_scorers')
 def top_scorers():
-    # Fetch subject-wise top scorers
+    # Fetch subject-wise top scorers considering highest quiz attempt per user
     subquery = (
         db.session.query(
             Subject.id.label("subject_id"),
             User.id.label("user_id"),
-            func.sum(Score.score).label("total_score")
+            func.max(Score.score).label("max_score")  # Taking highest attempt score
         )
         .join(Chapter, Chapter.subject_id == Subject.id)
         .join(Quiz, Quiz.chapter_id == Chapter.id)
         .join(Score, Score.quiz_id == Quiz.id)
         .join(User, User.id == Score.user_id)
         .group_by(Subject.id, User.id)
-        .order_by(Subject.id, func.sum(Score.score).desc())
         .subquery()
     )
 
@@ -398,11 +397,12 @@ def top_scorers():
         db.session.query(
             Subject.name.label("subject_name"),
             User.full_name.label("top_scorer"),
-            subquery.c.total_score
+            subquery.c.max_score
         )
         .join(subquery, subquery.c.subject_id == Subject.id)
         .join(User, User.id == subquery.c.user_id)
         .group_by(Subject.id)
+        .order_by(Subject.id, subquery.c.max_score.desc())
         .all()
     )
 
@@ -422,7 +422,7 @@ def top_scorers():
     # Convert data for Chart.js
     chart_data = {
         "labels": [scorer.subject_name for scorer in top_scorers],
-        "scores": [scorer.total_score for scorer in top_scorers],
+        "scores": [scorer.max_score for scorer in top_scorers],
         "scorers": [scorer.top_scorer for scorer in top_scorers]
     }
 
@@ -432,6 +432,7 @@ def top_scorers():
     }
 
     return render_template('top_scorers.html', chart_data=chart_data, attempt_chart_data=attempt_chart_data)
+
 
 
 # ----------------------user_dashboard--------------------------------
