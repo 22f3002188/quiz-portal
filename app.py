@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from backend.models import Score, create_admin, db, User, Subject, Chapter, Quiz, Question
 from datetime import datetime, date
+import re
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quiz_portal.db' #having db file
@@ -51,6 +52,14 @@ def login():
 
  
                         #  --------signup--------
+def is_valid_password(password):
+    """Check password strength"""
+    return (len(password) >= 8 and
+            re.search(r'[A-Z]', password) and
+            re.search(r'[a-z]', password) and
+            re.search(r'\d', password) and
+            re.search(r'[!@#$%^&*(),.?":{}|<>]', password))
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -59,28 +68,45 @@ def signup():
         full_name = request.form.get('full_name')
         qualification = request.form.get('qualification')
         dob_str = request.form.get('dob')
-        dob = datetime.strptime(dob_str, '%Y-%m-%d').date() 
 
-        if not email or not password or not full_name or not qualification or not dob:
-            flash('Please fill all the fields')
+        # Validate required fields
+        if not email or not password or not full_name or not qualification or not dob_str:
+            flash('Please fill all the fields', 'danger')
             return redirect(url_for('signup'))
 
+        # Validate date format
+        try:
+            dob = datetime.strptime(dob_str, '%Y-%m-%d').date()
+        except ValueError:
+            flash('Invalid date format. Please use YYYY-MM-DD.', 'danger')
+            return redirect(url_for('signup'))
+
+        # Validate password strength
+        if not is_valid_password(password):
+            flash("Password must be at least 5 characters long, include one uppercase, one lowercase, one digit, and one special character.", "danger")
+            return redirect(url_for('signup'))
+
+        # Check if the user already exists
         user = User.query.filter_by(email=email).first()
         if user:
-            flash('User already exists!')
+            flash('User already exists!', 'danger')
             return redirect(url_for('signup'))    
 
-        new_user = User(         #database object is created
+        # Store the password in plain text 
+        new_user = User(
             email=email,
-            password=password,
+            password=password,  
             full_name=full_name,
             qualification=qualification,
             dob=dob
         )
-        db.session.add(new_user)      # push to database
-        db.session.commit()           # commit to database (permanent save)
+
+        db.session.add(new_user)  # Push to database
+        db.session.commit()       # Commit to database (permanent save)
+
         flash('Signup successful!', 'success')
         return redirect(url_for('login'))
+
     return render_template('signup.html')    
 
 
@@ -118,7 +144,6 @@ def edit_subject(id):
         subject.description = request.form['description']
         db.session.commit()
         return redirect(url_for('admin_dashboard'))
-
     return render_template('edit_subject.html', subject=subject)
 
 @app.route('/subject/delete/<int:id>', methods=['POST'])
