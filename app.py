@@ -448,10 +448,6 @@ def top_scorers():
 
 # ----------------------user_dashboard--------------------------------
 
-
-
-from datetime import date
-
 @app.route('/quizzes')
 def all_quizzes():
     current_date = date.today()  # Ensure it is a date object
@@ -468,7 +464,6 @@ def all_quizzes():
         }
         for quiz in quizzes
     ]
-
     return render_template('users.html', quizzes=formatted_quizzes, current_date=current_date)
 
 
@@ -497,7 +492,6 @@ def attempt_quiz(quiz_id):
         db.session.commit()
 
         return render_template('show_score.html', score=user_score, total=len(questions))
-
     return render_template('attempt_quiz.html', quiz=quiz, questions=questions)
 
 
@@ -543,6 +537,9 @@ def search_quizzes():
     return render_template('search_quizzes.html', query=query, quizzes=quizzes, subjects=subjects)
 
 #----------------------------summary_charts--------------------------------
+
+from sqlalchemy import extract
+
 @app.route('/quizzes_charts', methods=['GET'])
 def quizzes_charts():
     quizzes_query = (
@@ -556,7 +553,6 @@ def quizzes_charts():
         .join(Chapter, Quiz.chapter_id == Chapter.id)
         .join(Subject, Chapter.subject_id == Subject.id)
     )
-
     quizzes = quizzes_query.all()
 
     # Subject-wise quiz count (for bar chart)
@@ -566,8 +562,26 @@ def quizzes_charts():
         "quizzes": list(subject_counts.values())
     }
 
-    return render_template('quizzes_charts.html', 
-                           subject_chart_data=subject_chart_data)
+    # Month-wise quiz attempts (for pie chart)
+    month_attempts_query = (
+        db.session.query(extract('month', Score.date_attempt).label("month"))
+        .all()
+    )
+
+    month_counts = Counter(month for month, in month_attempts_query)
+    month_labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    month_chart_data = {
+        "labels": [month_labels[month - 1] for month in month_counts.keys()],
+        "attempts": list(month_counts.values())
+    }
+
+    return render_template(
+        'quizzes_charts.html', 
+        subject_chart_data=subject_chart_data,
+        month_chart_data=month_chart_data
+    )
+
 
 # ----------------------logout--------------------------------
 @app.route('/logout')
