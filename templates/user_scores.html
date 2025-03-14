@@ -11,6 +11,7 @@
                 <th>Quiz Name</th>
                 <th>Chapter Name</th>
                 <th>Subject Name</th>
+                <th>Date Attempted</th>
                 <th>Score</th>
             </tr>
         </thead>
@@ -20,18 +21,15 @@
                     <td>{{ score.quiz_name }}</td>
                     <td>{{ score.chapter }}</td>
                     <td>{{ score.subject }}</td>
+                    <td>{{ score.date_attempt.strftime('%Y-%m-%d') }}</td>  <!-- Display only the date -->
                     <td>{{ score.score }}</td>
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="4" class="text-center">No scores found</td>
+                    <td colspan="5" class="text-center">No scores found</td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
-
-
-</body>
-</html>
 {% endblock %}

@@ -54,7 +54,7 @@ def login():
                         #  --------signup--------
 def is_valid_password(password):
     """Check password strength"""
-    return (len(password) >= 8 and
+    return (len(password) >= 5 and
             re.search(r'[A-Z]', password) and
             re.search(r'[a-z]', password) and
             re.search(r'\d', password) and
@@ -448,74 +448,56 @@ def top_scorers():
 
 # ----------------------user_dashboard--------------------------------
 
-@app.route('/quizzes', methods=['GET'])
+
+
+from datetime import date
+
+@app.route('/quizzes')
 def all_quizzes():
-    current_date = date.today()  # Get today's date
-
-    quizzes_query = (
-        db.session.query(
-            Quiz.id, 
-            Quiz.quiz_name, 
-            Quiz.time_duration, 
-            Quiz.date_of_quiz, 
-            Chapter.name.label("chapter"), 
-            Subject.name.label("subject")
-        )
-        .join(Chapter, Quiz.chapter_id == Chapter.id)
-        .join(Subject, Chapter.subject_id == Subject.id)
-    )
-
-
-    quizzes = quizzes_query.all()
-
-    # Convert all `date_of_quiz` to `date` objects safely
-    formatted_quizzes = []
-    for quiz in quizzes:
-        formatted_quizzes.append({
-            "id": quiz.id,
-            "quiz_name": quiz.quiz_name,
-            "time_duration": quiz.time_duration,
-            "date_of_quiz": quiz.date_of_quiz.date() if isinstance(quiz.date_of_quiz, datetime) else quiz.date_of_quiz,
-            "chapter": quiz.chapter,
-            "subject": quiz.subject
-        })
+    current_date = date.today()  # Ensure it is a date object
+    quizzes = Quiz.query.all()
+    
+    formatted_quizzes = [
+        {
+            'id': quiz.id,
+            'quiz_name': quiz.quiz_name,
+            'chapter': quiz.chapter.name,
+            'subject': quiz.chapter.subject.name,
+            'time_duration': quiz.time_duration,
+            'date_of_quiz': quiz.date_of_quiz if isinstance(quiz.date_of_quiz, date) else quiz.date_of_quiz.date()
+        }
+        for quiz in quizzes
+    ]
 
     return render_template('users.html', quizzes=formatted_quizzes, current_date=current_date)
-
 
 
 @app.route('/quiz/<int:quiz_id>/attempt', methods=['GET', 'POST'])
 def attempt_quiz(quiz_id):
     quiz = Quiz.query.get_or_404(quiz_id)
-    chapter = quiz.chapter  # Get the chapter associated with this quiz
-    subject = chapter.subject  # Get the subject associated with the chapter
+    chapter = quiz.chapter  
+    subject = chapter.subject  
     questions = Question.query.filter_by(quiz_id=quiz_id).all()
     
     if request.method == 'POST':
-        user_score = 0
-        
-        # Check answers for each question
-        for question in questions:
-            user_answer = request.form.get(f'q{question.id}')
-            
-            # Compare user's answer to the correct answer (by matching with the selected option)
-            if user_answer == getattr(question, question.correct_answer):
-                user_score += 1
-        
-        # Save the score in the database
-        user_id = session.get('user_id')  # Assuming the user ID is stored in the session
-        
+        user_score = sum(
+            1 for question in questions 
+            if request.form.get(f'q{question.id}') == getattr(question, question.correct_answer)
+        )
+
+        user_id = session.get('user_id')  
+
         score_entry = Score(
-            user_id=user_id,  # Get user_id from session or pass it from the frontend
+            user_id=user_id,
             quiz_id=quiz_id,
-            score=user_score,  # Total score
+            date_attempt=date.today(),  # Store only the date
+            score=user_score
         )
         db.session.add(score_entry)
         db.session.commit()
 
-        # Render the score directly (as a number)
         return render_template('show_score.html', score=user_score, total=len(questions))
-    
+
     return render_template('attempt_quiz.html', quiz=quiz, questions=questions)
 
 
@@ -527,24 +509,24 @@ def show_score(score_id):
 
 @app.route('/user/scores', methods=['GET'])
 def user_scores():
-    user_id = session.get('user_id')  # Get the logged-in user's ID from session
-    
-    # Query to get the scores for the logged-in user
+    user_id = session.get('user_id')  
+
     scores_query = db.session.query(
         Score.score,
+        Score.date_attempt,
         Quiz.quiz_name,
         Chapter.name.label('chapter'),
         Subject.name.label('subject')
     ).join(Quiz, Score.quiz_id == Quiz.id) \
      .join(Chapter, Quiz.chapter_id == Chapter.id) \
      .join(Subject, Chapter.subject_id == Subject.id) \
-     .filter(Score.user_id == user_id)  # Only get scores for the current user
+     .filter(Score.user_id == user_id)  
 
-    scores = scores_query.all()  # Execute the query
-    
+    scores = scores_query.all()  
+
     return render_template('user_scores.html', scores=scores)
 
-from flask import request, flash, redirect, url_for, render_template
+
 
 # ----------------------search_quizzes--------------------------------
 @app.route('/search_quizzes')
