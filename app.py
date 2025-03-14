@@ -527,7 +527,6 @@ def user_scores():
     return render_template('user_scores.html', scores=scores)
 
 
-
 # ----------------------search_quizzes--------------------------------
 @app.route('/search_quizzes')
 def search_quizzes():
