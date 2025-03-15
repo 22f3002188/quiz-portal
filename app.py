@@ -538,10 +538,18 @@ def search_quizzes():
 
 #----------------------------summary_charts--------------------------------
 
+
 from sqlalchemy import extract
+
 
 @app.route('/quizzes_charts', methods=['GET'])
 def quizzes_charts():
+    if "user_id" not in session:
+        flash("Please log in to view your quiz statistics.", "warning")
+        return redirect(url_for('login'))
+
+    user_id = session["user_id"]
+
     quizzes_query = (
         db.session.query(
             Quiz.id, 
@@ -562,9 +570,10 @@ def quizzes_charts():
         "quizzes": list(subject_counts.values())
     }
 
-    # Month-wise quiz attempts (for pie chart)
+    # Month-wise quiz attempts for the logged-in user (for pie chart)
     month_attempts_query = (
         db.session.query(extract('month', Score.date_attempt).label("month"))
+        .filter(Score.user_id == user_id)  # Filter by specific user
         .all()
     )
 
